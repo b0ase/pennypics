@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import DarkModeToggle from '../components/DarkModeToggle';
 import { useTheme } from './_app';
 import Link from 'next/link';
@@ -29,38 +29,6 @@ export default function Home() {
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [imageHistory, setImageHistory] = useState([]);
   const { darkMode } = useTheme();
-
-  // Check for parameters from gallery page
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      // Check if we have pending parameters from the gallery page
-      const pendingPrompt = sessionStorage.getItem('pendingPrompt');
-      const pendingStyle = sessionStorage.getItem('pendingStyle');
-      const pendingWidth = sessionStorage.getItem('pendingWidth');
-      const pendingHeight = sessionStorage.getItem('pendingHeight');
-      
-      // If we have parameters, update the state
-      if (pendingPrompt) {
-        setPrompt(pendingPrompt);
-        sessionStorage.removeItem('pendingPrompt');
-      }
-      
-      if (pendingStyle) {
-        setStyle(pendingStyle);
-        sessionStorage.removeItem('pendingStyle');
-      }
-      
-      if (pendingWidth) {
-        setWidth(Number(pendingWidth));
-        sessionStorage.removeItem('pendingWidth');
-      }
-      
-      if (pendingHeight) {
-        setHeight(Number(pendingHeight));
-        sessionStorage.removeItem('pendingHeight');
-      }
-    }
-  }, []);
 
   const generateImage = async () => {
     setLoading(true);
