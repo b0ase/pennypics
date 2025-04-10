@@ -1,4 +1,7 @@
 import React, { useState } from 'react';
+import DarkModeToggle from '../components/DarkModeToggle';
+import { useTheme } from './_app';
+import Link from 'next/link';
 
 // Available style presets for the generator
 const STYLE_OPTIONS = [
@@ -25,6 +28,7 @@ export default function Home() {
   const [samples, setSamples] = useState(1);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [imageHistory, setImageHistory] = useState([]);
+  const { darkMode } = useTheme();
 
   const generateImage = async () => {
     setLoading(true);
@@ -81,15 +85,15 @@ export default function Home() {
       minHeight: '100vh', 
       display: 'flex', 
       flexDirection: 'column',
-      backgroundColor: '#f8f9fa',
+      backgroundColor: 'var(--bg-primary)',
       fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif',
-      color: '#333'
+      color: 'var(--text-primary)'
     }}>
       <header style={{ 
-        background: 'linear-gradient(90deg, #2c3e50, #4a5568)',
+        background: 'var(--header-bg)',
         color: 'white', 
         padding: '1.5rem 0',
-        boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
+        boxShadow: 'var(--card-shadow)'
       }}>
         <div style={{
           maxWidth: '1200px',
@@ -105,31 +109,15 @@ export default function Home() {
             fontWeight: '700',
             letterSpacing: '0.5px'
           }}>
-            <span style={{ color: '#38b2ac' }}>Penny</span>Pics
+            <span style={{ color: 'var(--accent-color)' }}>Penny</span>Pics
           </h1>
           <div style={{ 
             display: 'flex', 
-            gap: '1rem' 
+            gap: '1rem',
+            alignItems: 'center'
           }}>
-            <a href="#" style={{ 
-              color: 'white', 
-              textDecoration: 'none',
-              fontSize: '0.9rem',
-              fontWeight: '500',
-              padding: '0.5rem 1rem',
-              borderRadius: '4px',
-              transition: 'background 0.3s'
-            }}>Home</a>
-            <a href="#" style={{ 
-              color: 'white', 
-              textDecoration: 'none',
-              fontSize: '0.9rem',
-              fontWeight: '500',
-              padding: '0.5rem 1rem',
-              borderRadius: '4px',
-              transition: 'background 0.3s'
-            }}>Gallery</a>
-            <a href="#" style={{ 
+            <DarkModeToggle />
+            <Link href="/" style={{ 
               color: 'white', 
               textDecoration: 'none',
               fontSize: '0.9rem',
@@ -138,7 +126,25 @@ export default function Home() {
               borderRadius: '4px',
               background: 'rgba(255,255,255,0.1)',
               transition: 'background 0.3s'
-            }}>About</a>
+            }}>Home</Link>
+            <Link href="/gallery" style={{ 
+              color: 'white', 
+              textDecoration: 'none',
+              fontSize: '0.9rem',
+              fontWeight: '500',
+              padding: '0.5rem 1rem',
+              borderRadius: '4px',
+              transition: 'background 0.3s'
+            }}>Gallery</Link>
+            <Link href="/about" style={{ 
+              color: 'white', 
+              textDecoration: 'none',
+              fontSize: '0.9rem',
+              fontWeight: '500',
+              padding: '0.5rem 1rem',
+              borderRadius: '4px',
+              transition: 'background 0.3s'
+            }}>About</Link>
           </div>
         </div>
       </header>
@@ -157,7 +163,7 @@ export default function Home() {
           <h2 style={{
             fontSize: '2.5rem',
             fontWeight: '800',
-            color: '#2d3748',
+            color: 'var(--text-primary)',
             marginBottom: '1rem'
           }}>
             Transform Your Ideas Into Art
@@ -166,7 +172,7 @@ export default function Home() {
             fontSize: '1.1rem',
             maxWidth: '700px',
             margin: '0 auto',
-            color: '#4a5568',
+            color: 'var(--text-secondary)',
             lineHeight: '1.6'
           }}>
             Use the power of AI to create stunning images from your text descriptions.
@@ -175,10 +181,10 @@ export default function Home() {
         </div>
         
         <div style={{ 
-          backgroundColor: 'white', 
+          backgroundColor: 'var(--bg-secondary)', 
           padding: '2.5rem', 
           borderRadius: '12px',
-          boxShadow: '0 10px 25px rgba(0,0,0,0.05)',
+          boxShadow: 'var(--card-shadow)',
           marginBottom: '2rem'
         }}>
           <div style={{ marginBottom: '2rem' }}>
@@ -188,7 +194,7 @@ export default function Home() {
                 display: 'block', 
                 marginBottom: '0.75rem', 
                 fontWeight: '600',
-                color: '#2d3748',
+                color: 'var(--text-primary)',
                 fontSize: '1.1rem'
               }}
             >
@@ -202,7 +208,9 @@ export default function Home() {
                 width: '100%',
                 padding: '1rem',
                 borderRadius: '8px',
-                border: '1px solid #e2e8f0',
+                border: `1px solid var(--border-color)`,
+                backgroundColor: darkMode ? '#2d3748' : 'white',
+                color: 'var(--text-primary)',
                 minHeight: '120px',
                 fontFamily: 'inherit',
                 fontSize: '1rem',
@@ -220,7 +228,7 @@ export default function Home() {
                 display: 'block',
                 marginBottom: '0.75rem',
                 fontWeight: '600',
-                color: '#2d3748',
+                color: 'var(--text-primary)',
                 fontSize: '1.1rem'
               }}
             >
@@ -241,8 +249,8 @@ export default function Home() {
                     padding: '0.6rem 1rem',
                     border: 'none',
                     borderRadius: '6px',
-                    backgroundColor: style === styleOption.id ? '#38b2ac' : '#f7fafc',
-                    color: style === styleOption.id ? 'white' : '#4a5568',
+                    backgroundColor: style === styleOption.id ? 'var(--accent-color)' : 'var(--bg-tertiary)',
+                    color: style === styleOption.id ? 'white' : 'var(--text-secondary)',
                     fontWeight: style === styleOption.id ? '600' : '500',
                     fontSize: '0.9rem',
                     cursor: 'pointer',
@@ -270,7 +278,7 @@ export default function Home() {
               style={{
                 background: 'none',
                 border: 'none',
-                color: '#4a5568',
+                color: 'var(--text-secondary)',
                 fontSize: '0.9rem',
                 display: 'flex',
                 alignItems: 'center',
@@ -286,21 +294,20 @@ export default function Home() {
             </button>
           </div>
           
-          {/* Advanced options panel */}
           {showAdvanced && (
             <div style={{ 
               marginBottom: '2rem',
               padding: '1.5rem',
-              backgroundColor: '#f7fafc',
+              backgroundColor: 'var(--bg-tertiary)',
               borderRadius: '8px',
-              border: '1px solid #e2e8f0',
+              border: `1px solid var(--border-color)`,
             }}>
               <h3 style={{ 
                 fontSize: '1rem', 
                 fontWeight: '600',
                 marginTop: 0,
                 marginBottom: '1rem',
-                color: '#2d3748',
+                color: 'var(--text-primary)',
               }}>
                 Advanced Settings
               </h3>
@@ -317,7 +324,7 @@ export default function Home() {
                       display: 'block',
                       marginBottom: '0.5rem',
                       fontWeight: '500',
-                      color: '#4a5568',
+                      color: 'var(--text-primary)',
                       fontSize: '0.9rem'
                     }}
                   >
@@ -330,10 +337,10 @@ export default function Home() {
                       width: '100%',
                       padding: '0.6rem 0.8rem',
                       borderRadius: '6px',
-                      border: '1px solid #e2e8f0',
-                      backgroundColor: 'white',
+                      border: '1px solid var(--border-color)',
+                      backgroundColor: 'var(--bg-secondary)',
                       fontSize: '0.9rem',
-                      color: '#2d3748'
+                      color: 'var(--text-primary)'
                     }}
                   >
                     <option value={512}>512px</option>
@@ -350,7 +357,7 @@ export default function Home() {
                       display: 'block',
                       marginBottom: '0.5rem',
                       fontWeight: '500',
-                      color: '#4a5568',
+                      color: 'var(--text-primary)',
                       fontSize: '0.9rem'
                     }}
                   >
@@ -363,10 +370,10 @@ export default function Home() {
                       width: '100%',
                       padding: '0.6rem 0.8rem',
                       borderRadius: '6px',
-                      border: '1px solid #e2e8f0',
-                      backgroundColor: 'white',
+                      border: '1px solid var(--border-color)',
+                      backgroundColor: 'var(--bg-secondary)',
                       fontSize: '0.9rem',
-                      color: '#2d3748'
+                      color: 'var(--text-primary)'
                     }}
                   >
                     <option value={512}>512px</option>
@@ -383,7 +390,7 @@ export default function Home() {
                       display: 'block',
                       marginBottom: '0.5rem',
                       fontWeight: '500',
-                      color: '#4a5568',
+                      color: 'var(--text-primary)',
                       fontSize: '0.9rem'
                     }}
                   >
@@ -396,10 +403,10 @@ export default function Home() {
                       width: '100%',
                       padding: '0.6rem 0.8rem',
                       borderRadius: '6px',
-                      border: '1px solid #e2e8f0',
-                      backgroundColor: 'white',
+                      border: '1px solid var(--border-color)',
+                      backgroundColor: 'var(--bg-secondary)',
                       fontSize: '0.9rem',
-                      color: '#2d3748'
+                      color: 'var(--text-primary)'
                     }}
                   >
                     <option value={1}>1 image</option>
@@ -417,7 +424,7 @@ export default function Home() {
               onClick={generateImage}
               disabled={loading || !prompt.trim()}
               style={{
-                backgroundColor: loading ? '#a0aec0' : '#38b2ac',
+                backgroundColor: loading ? 'var(--text-secondary)' : 'var(--accent-color)',
                 color: 'white',
                 border: 'none',
                 padding: '0.9rem 2rem',
@@ -461,11 +468,11 @@ export default function Home() {
         {error && (
           <div style={{ 
             marginTop: '1.5rem', 
-            color: '#e53e3e', 
+            color: 'var(--error-text)', 
             padding: '1rem',
-            backgroundColor: '#fff5f5',
+            backgroundColor: 'var(--error-bg)',
             borderRadius: '8px',
-            border: '1px solid #feb2b2',
+            border: darkMode ? '1px solid #742a2a' : '1px solid #feb2b2',
             display: 'flex',
             alignItems: 'center',
             gap: '0.75rem'
@@ -483,13 +490,13 @@ export default function Home() {
         {generatedImages.length > 0 && !error && (
           <div style={{ 
             marginTop: '2.5rem',
-            backgroundColor: 'white',
+            backgroundColor: 'var(--bg-secondary)',
             borderRadius: '12px',
             overflow: 'hidden',
-            boxShadow: '0 10px 25px rgba(0,0,0,0.05)',
+            boxShadow: 'var(--card-shadow)',
           }}>
             <div style={{ 
-              borderBottom: '1px solid #e2e8f0',
+              borderBottom: '1px solid var(--border-color)',
               padding: '1.25rem',
               display: 'flex',
               justifyContent: 'space-between',
@@ -499,7 +506,7 @@ export default function Home() {
                 margin: 0, 
                 fontSize: '1.25rem', 
                 fontWeight: '700', 
-                color: '#2d3748' 
+                color: 'var(--text-primary)' 
               }}>
                 Your Generated Image
               </h3>
@@ -510,7 +517,7 @@ export default function Home() {
                   display: 'inline-flex',
                   alignItems: 'center',
                   gap: '0.5rem',
-                  backgroundColor: '#38b2ac',
+                  backgroundColor: 'var(--accent-color)',
                   color: 'white',
                   padding: '0.6rem 1.2rem',
                   borderRadius: '6px',
@@ -529,14 +536,14 @@ export default function Home() {
             </div>
             <div style={{ padding: '1.5rem' }}>
               <div style={{ 
-                backgroundColor: '#f7fafc',
+                backgroundColor: 'var(--bg-tertiary)',
                 borderRadius: '8px',
                 padding: '0.75rem',
                 marginBottom: '1rem'
               }}>
                 <p style={{ 
                   margin: 0, 
-                  color: '#4a5568', 
+                  color: 'var(--text-primary)', 
                   fontSize: '0.9rem',
                   fontStyle: 'italic' 
                 }}>
@@ -560,9 +567,9 @@ export default function Home() {
                           width: '40px',
                           height: '40px',
                           borderRadius: '6px',
-                          border: index === activeImageIndex ? '2px solid #38b2ac' : '2px solid transparent',
+                          border: index === activeImageIndex ? '2px solid var(--accent-color)' : '2px solid transparent',
                           padding: '2px',
-                          backgroundColor: '#f7fafc',
+                          backgroundColor: 'var(--bg-tertiary)',
                           cursor: 'pointer',
                           overflow: 'hidden',
                         }}
@@ -608,7 +615,7 @@ export default function Home() {
             <h3 style={{ 
               fontSize: '1.25rem', 
               fontWeight: '700', 
-              color: '#2d3748',
+              color: 'var(--text-primary)',
               marginBottom: '1.5rem',
               textAlign: 'center'
             }}>
@@ -624,10 +631,10 @@ export default function Home() {
                 <div 
                   key={historyIndex}
                   style={{
-                    backgroundColor: 'white',
+                    backgroundColor: 'var(--bg-secondary)',
                     borderRadius: '8px',
                     overflow: 'hidden',
-                    boxShadow: '0 4px 8px rgba(0,0,0,0.05)',
+                    boxShadow: 'var(--card-shadow)',
                     transition: 'transform 0.2s',
                     cursor: 'pointer',
                     ':hover': {
@@ -661,7 +668,7 @@ export default function Home() {
                     <p style={{ 
                       margin: 0,
                       fontSize: '0.8rem',
-                      color: '#4a5568',
+                      color: 'var(--text-primary)',
                       textOverflow: 'ellipsis',
                       overflow: 'hidden',
                       whiteSpace: 'nowrap'
@@ -686,12 +693,12 @@ export default function Home() {
             maxWidth: '300px',
             textAlign: 'center',
             padding: '1.5rem',
-            backgroundColor: 'white',
+            backgroundColor: 'var(--bg-secondary)',
             borderRadius: '12px',
-            boxShadow: '0 5px 15px rgba(0,0,0,0.05)'
+            boxShadow: 'var(--card-shadow)'
           }}>
             <div style={{ 
-              backgroundColor: '#ebf4ff', 
+              backgroundColor: 'var(--bg-tertiary)', 
               width: '3rem', 
               height: '3rem', 
               borderRadius: '50%', 
@@ -700,12 +707,12 @@ export default function Home() {
               justifyContent: 'center', 
               margin: '0 auto 1rem' 
             }}>
-              <svg style={{ width: '1.5rem', height: '1.5rem', color: '#4299e1' }} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <svg style={{ width: '1.5rem', height: '1.5rem', color: 'var(--accent-color)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
               </svg>
             </div>
-            <h3 style={{ margin: '0 0 0.5rem', color: '#2d3748', fontWeight: '600' }}>Multiple Styles</h3>
-            <p style={{ margin: 0, color: '#4a5568', fontSize: '0.9rem' }}>
+            <h3 style={{ margin: '0 0 0.5rem', color: 'var(--text-primary)', fontWeight: '600' }}>Multiple Styles</h3>
+            <p style={{ margin: 0, color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
               Choose from various artistic styles to create the perfect image for your needs.
             </p>
           </div>
@@ -714,12 +721,12 @@ export default function Home() {
             maxWidth: '300px',
             textAlign: 'center',
             padding: '1.5rem',
-            backgroundColor: 'white',
+            backgroundColor: 'var(--bg-secondary)',
             borderRadius: '12px',
-            boxShadow: '0 5px 15px rgba(0,0,0,0.05)'
+            boxShadow: 'var(--card-shadow)'
           }}>
             <div style={{ 
-              backgroundColor: '#f0fff4', 
+              backgroundColor: 'var(--bg-tertiary)', 
               width: '3rem', 
               height: '3rem', 
               borderRadius: '50%', 
@@ -728,12 +735,12 @@ export default function Home() {
               justifyContent: 'center', 
               margin: '0 auto 1rem' 
             }}>
-              <svg style={{ width: '1.5rem', height: '1.5rem', color: '#48bb78' }} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <svg style={{ width: '1.5rem', height: '1.5rem', color: 'var(--accent-color)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
               </svg>
             </div>
-            <h3 style={{ margin: '0 0 0.5rem', color: '#2d3748', fontWeight: '600' }}>Advanced Options</h3>
-            <p style={{ margin: 0, color: '#4a5568', fontSize: '0.9rem' }}>
+            <h3 style={{ margin: '0 0 0.5rem', color: 'var(--text-primary)', fontWeight: '600' }}>Advanced Options</h3>
+            <p style={{ margin: 0, color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
               Control image size and generate multiple versions to find your perfect result.
             </p>
           </div>
@@ -742,12 +749,12 @@ export default function Home() {
             maxWidth: '300px',
             textAlign: 'center',
             padding: '1.5rem',
-            backgroundColor: 'white',
+            backgroundColor: 'var(--bg-secondary)',
             borderRadius: '12px',
-            boxShadow: '0 5px 15px rgba(0,0,0,0.05)'
+            boxShadow: 'var(--card-shadow)'
           }}>
             <div style={{ 
-              backgroundColor: '#fff5f5', 
+              backgroundColor: 'var(--bg-tertiary)', 
               width: '3rem', 
               height: '3rem', 
               borderRadius: '50%', 
@@ -756,12 +763,12 @@ export default function Home() {
               justifyContent: 'center', 
               margin: '0 auto 1rem' 
             }}>
-              <svg style={{ width: '1.5rem', height: '1.5rem', color: '#f56565' }} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <svg style={{ width: '1.5rem', height: '1.5rem', color: 'var(--accent-color)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
               </svg>
             </div>
-            <h3 style={{ margin: '0 0 0.5rem', color: '#2d3748', fontWeight: '600' }}>Generation History</h3>
-            <p style={{ margin: 0, color: '#4a5568', fontSize: '0.9rem' }}>
+            <h3 style={{ margin: '0 0 0.5rem', color: 'var(--text-primary)', fontWeight: '600' }}>Generation History</h3>
+            <p style={{ margin: 0, color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
               Browse your recent creations and reuse your favorite generation settings.
             </p>
           </div>
@@ -769,8 +776,8 @@ export default function Home() {
       </main>
       
       <footer style={{ 
-        backgroundColor: '#2d3748', 
-        color: '#e2e8f0', 
+        backgroundColor: 'var(--header-bg)', 
+        color: 'var(--text-secondary)', 
         padding: '2.5rem 0',
         marginTop: '4rem'
       }}>
@@ -783,9 +790,9 @@ export default function Home() {
           alignItems: 'center'
         }}>
           <div style={{ display: 'flex', gap: '2rem', marginBottom: '1.5rem' }}>
-            <a href="#" style={{ color: '#a0aec0', textDecoration: 'none', fontSize: '0.9rem' }}>Privacy Policy</a>
-            <a href="#" style={{ color: '#a0aec0', textDecoration: 'none', fontSize: '0.9rem' }}>Terms of Service</a>
-            <a href="#" style={{ color: '#a0aec0', textDecoration: 'none', fontSize: '0.9rem' }}>Contact Us</a>
+            <a href="#" style={{ color: 'var(--text-secondary)', textDecoration: 'none', fontSize: '0.9rem' }}>Privacy Policy</a>
+            <a href="#" style={{ color: 'var(--text-secondary)', textDecoration: 'none', fontSize: '0.9rem' }}>Terms of Service</a>
+            <a href="#" style={{ color: 'var(--text-secondary)', textDecoration: 'none', fontSize: '0.9rem' }}>Contact Us</a>
           </div>
           <div style={{ 
             display: 'flex', 
@@ -794,7 +801,7 @@ export default function Home() {
           }}>
             <a href="#" style={{ 
               color: 'white', 
-              backgroundColor: 'rgba(255,255,255,0.1)', 
+              backgroundColor: darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)', 
               width: '2.5rem', 
               height: '2.5rem', 
               borderRadius: '50%', 
@@ -808,7 +815,7 @@ export default function Home() {
             </a>
             <a href="#" style={{ 
               color: 'white', 
-              backgroundColor: 'rgba(255,255,255,0.1)', 
+              backgroundColor: darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)', 
               width: '2.5rem', 
               height: '2.5rem', 
               borderRadius: '50%', 
@@ -822,7 +829,7 @@ export default function Home() {
             </a>
             <a href="#" style={{ 
               color: 'white', 
-              backgroundColor: 'rgba(255,255,255,0.1)', 
+              backgroundColor: darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)', 
               width: '2.5rem', 
               height: '2.5rem', 
               borderRadius: '50%', 
@@ -838,7 +845,7 @@ export default function Home() {
           <p style={{ 
             margin: 0, 
             fontSize: '0.9rem', 
-            color: '#a0aec0',
+            color: 'var(--text-secondary)',
             textAlign: 'center' 
           }}>
             &copy; {new Date().getFullYear()} PennyPics. All rights reserved.<br />
