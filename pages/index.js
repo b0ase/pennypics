@@ -2,6 +2,9 @@ import React, { useState, useEffect } from 'react';
 import DarkModeToggle from '../components/DarkModeToggle';
 import { useTheme, useImageHistory, useSelectedImage } from './_app';
 import Link from 'next/link';
+import { WalletConnectButton } from '../components/WalletConnect';
+import { useWallet, useConnection } from '@solana/wallet-adapter-react';
+import { payForImageGeneration, checkBalance, IMAGE_COST, formatSol } from '../services/solanaService';
 
 // Available style presets for the generator
 const STYLE_OPTIONS = [
@@ -19,6 +22,7 @@ const STYLE_OPTIONS = [
 export default function Home() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(null);
   const [generatedImages, setGeneratedImages] = useState([]);
   const [prompt, setPrompt] = useState('a beautiful landscape with mountains and water');
   const [style, setStyle] = useState('photographic');
@@ -27,9 +31,13 @@ export default function Home() {
   const [height, setHeight] = useState(1024);
   const [samples, setSamples] = useState(1);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
+  const [hasEnoughBalance, setHasEnoughBalance] = useState(false);
+  const [isProcessingPayment, setIsProcessingPayment] = useState(false);
   const { darkMode } = useTheme();
   const { imageHistory, addToImageHistory } = useImageHistory();
   const { selectedImageData, setSelectedImageData } = useSelectedImage();
+  const wallet = useWallet();
+  const { connection } = useConnection();
 
   // Apply selected image data when component loads
   useEffect(() => {
@@ -39,14 +47,57 @@ export default function Home() {
       setWidth(selectedImageData.width);
       setHeight(selectedImageData.height);
       
-      // Optional: also set the generated images
-      // setGeneratedImages(selectedImageData.images);
-      // setActiveImageIndex(0);
-      
       // Clear the selected image data after applying it
       setSelectedImageData(null);
     }
   }, [selectedImageData, setSelectedImageData]);
+
+  // Check wallet balance when wallet changes
+  useEffect(() => {
+    const checkUserBalance = async () => {
+      if (wallet && wallet.publicKey) {
+        const hasBalance = await checkBalance(wallet, connection);
+        setHasEnoughBalance(hasBalance);
+      } else {
+        setHasEnoughBalance(false);
+      }
+    };
+
+    checkUserBalance();
+  }, [wallet, wallet.publicKey, connection]);
+
+  const handlePaymentAndGenerate = async () => {
+    // Clear any previous errors or success messages
+    setError(null);
+    setSuccess(null);
+    setIsProcessingPayment(true);
+
+    try {
+      if (!wallet.publicKey) {
+        throw new Error('Please connect your wallet first');
+      }
+
+      // Check if user has enough balance
+      const hasBalance = await checkBalance(wallet, connection);
+      if (!hasBalance) {
+        throw new Error(`Insufficient balance. You need at least ${formatSol(IMAGE_COST)} to generate an image.`);
+      }
+
+      // Process the payment
+      const paymentResult = await payForImageGeneration(wallet, connection);
+      
+      // Show success message
+      setSuccess(`Payment of ${formatSol(IMAGE_COST)} successful! Signature: ${paymentResult.signature.slice(0, 8)}...`);
+      
+      // Now generate the image
+      await generateImage();
+    } catch (err) {
+      setError(err.message);
+      console.error('Payment error:', err);
+    } finally {
+      setIsProcessingPayment(false);
+    }
+  };
 
   const generateImage = async () => {
     setLoading(true);
@@ -160,6 +211,7 @@ export default function Home() {
               borderRadius: '4px',
               transition: 'background 0.3s'
             }}>About</Link>
+            <WalletConnectButton />
           </div>
         </div>
       </header>
@@ -192,6 +244,46 @@ export default function Home() {
           }}>
             Use the power of AI to create stunning images from your text descriptions.
             Just type what you want to see, and watch the magic happen!
+          </p>
+        </div>
+        
+        {/* Payment notice */}
+        <div style={{
+          backgroundColor: 'var(--bg-tertiary)',
+          padding: '1.5rem',
+          borderRadius: '12px',
+          boxShadow: 'var(--card-shadow)',
+          marginBottom: '2rem',
+          textAlign: 'center',
+          border: `1px solid ${darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)'}`
+        }}>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '0.5rem',
+            marginBottom: '1rem'
+          }}>
+            <svg style={{ width: '1.5rem', height: '1.5rem', color: 'var(--accent-color)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <p style={{
+              margin: 0,
+              fontSize: '1.1rem',
+              fontWeight: '600',
+              color: 'var(--text-primary)'
+            }}>
+              Each image generation costs {formatSol(IMAGE_COST)}
+            </p>
+          </div>
+          <p style={{
+            margin: '0 auto',
+            maxWidth: '600px',
+            fontSize: '0.9rem',
+            color: 'var(--text-secondary)',
+            lineHeight: '1.6'
+          }}>
+            Connect your Phantom wallet to pay for image generation. Your payment helps support our service and development.
           </p>
         </div>
         
@@ -436,15 +528,19 @@ export default function Home() {
           
           <div style={{ textAlign: 'center' }}>
             <button 
-              onClick={generateImage}
-              disabled={loading || !prompt.trim()}
+              onClick={handlePaymentAndGenerate}
+              disabled={loading || isProcessingPayment || !prompt.trim() || !wallet.publicKey}
               style={{
-                backgroundColor: loading ? 'var(--text-secondary)' : 'var(--accent-color)',
+                backgroundColor: (loading || isProcessingPayment || !prompt.trim() || !wallet.publicKey) 
+                  ? 'var(--text-secondary)' 
+                  : 'var(--accent-color)',
                 color: 'white',
                 border: 'none',
                 padding: '0.9rem 2rem',
                 borderRadius: '8px',
-                cursor: loading ? 'not-allowed' : 'pointer',
+                cursor: (loading || isProcessingPayment || !prompt.trim() || !wallet.publicKey) 
+                  ? 'not-allowed' 
+                  : 'pointer',
                 fontWeight: '600',
                 fontSize: '1rem',
                 transition: 'all 0.3s ease',
@@ -455,7 +551,7 @@ export default function Home() {
                 gap: '0.5rem'
               }}
             >
-              {loading ? (
+              {loading || isProcessingPayment ? (
                 <>
                   <span className="spinner" style={{
                     display: 'inline-block',
@@ -466,20 +562,53 @@ export default function Home() {
                     borderRadius: '50%',
                     animation: 'spin 1s linear infinite'
                   }}></span>
-                  Generating...
+                  {isProcessingPayment ? 'Processing Payment...' : 'Generating...'}
                 </>
               ) : (
                 <>
                   <svg style={{ width: '1.2rem', height: '1.2rem' }} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                   </svg>
-                  Generate Image
+                  Pay {formatSol(IMAGE_COST)} & Generate
                 </>
               )}
             </button>
+            {!wallet.publicKey && (
+              <p style={{ 
+                marginTop: '0.75rem', 
+                fontSize: '0.9rem',
+                color: 'var(--text-secondary)'
+              }}>
+                Please connect your wallet to generate images
+              </p>
+            )}
           </div>
         </div>
           
+        {/* Success message */}
+        {success && (
+          <div style={{ 
+            marginTop: '1.5rem', 
+            color: 'var(--success-text)', 
+            padding: '1rem',
+            backgroundColor: 'var(--success-bg)',
+            borderRadius: '8px',
+            border: darkMode ? '1px solid #22543d' : '1px solid #9ae6b4',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.75rem'
+          }}>
+            <svg style={{ width: '1.5rem', height: '1.5rem', flexShrink: 0 }} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            </svg>
+            <div>
+              <p style={{ fontWeight: '600', margin: 0 }}>Success</p>
+              <p style={{ margin: '0.25rem 0 0 0', fontSize: '0.9rem' }}>{success}</p>
+            </div>
+          </div>
+        )}
+        
+        {/* Error message */}
         {error && (
           <div style={{ 
             marginTop: '1.5rem', 

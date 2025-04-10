@@ -2,6 +2,8 @@ import React from 'react';
 import DarkModeToggle from '../components/DarkModeToggle';
 import { useTheme } from './_app';
 import Link from 'next/link';
+import { WalletConnectButton } from '../components/WalletConnect';
+import { IMAGE_COST, formatSol } from '../services/solanaService';
 
 export default function About() {
   const { darkMode } = useTheme();
@@ -71,6 +73,7 @@ export default function About() {
               background: 'rgba(255,255,255,0.1)',
               transition: 'background 0.3s'
             }}>About</Link>
+            <WalletConnectButton />
           </div>
         </div>
       </header>
@@ -156,7 +159,8 @@ export default function About() {
             <li style={{ marginBottom: '0.75rem' }}>Customize image dimensions to suit your needs</li>
             <li style={{ marginBottom: '0.75rem' }}>Create multiple variations with a single prompt</li>
             <li style={{ marginBottom: '0.75rem' }}>Dark mode support for comfortable viewing</li>
-            <li>Download your generated images for use in your projects</li>
+            <li style={{ marginBottom: '0.75rem' }}>Download your generated images for use in your projects</li>
+            <li>Secure payment with Solana blockchain technology</li>
           </ul>
           
           <h3 style={{ 
@@ -179,6 +183,68 @@ export default function About() {
             The image generation is powered by Stability AI's state-of-the-art models, which can
             understand and visualize complex text descriptions with remarkable accuracy.
           </p>
+
+          <h3 style={{ 
+            fontSize: '1.5rem', 
+            fontWeight: '700',
+            marginTop: '2.5rem',
+            marginBottom: '1.5rem',
+            color: 'var(--text-primary)',
+          }}>
+            Blockchain Integration
+          </h3>
+          
+          <p style={{
+            fontSize: '1.1rem',
+            color: 'var(--text-secondary)',
+            lineHeight: '1.8',
+            marginBottom: '1.5rem'
+          }}>
+            PennyPics uses Solana blockchain for secure, fast, and low-cost transactions. 
+            Each image generation costs just {formatSol(IMAGE_COST)}, paid directly through your 
+            Phantom wallet. This integration ensures transparent pricing and helps 
+            maintain the service quality while keeping costs affordable.
+          </p>
+
+          <div style={{
+            backgroundColor: 'var(--bg-tertiary)',
+            padding: '1.5rem',
+            borderRadius: '8px',
+            marginBottom: '2rem',
+            border: `1px solid ${darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)'}`,
+          }}>
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              marginBottom: '1rem',
+              gap: '1rem'
+            }}>
+              <svg style={{ width: '2rem', height: '2rem', color: 'var(--accent-color)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <h4 style={{ 
+                margin: 0,
+                fontSize: '1.1rem',
+                fontWeight: '600',
+                color: 'var(--text-primary)'
+              }}>
+                How It Works
+              </h4>
+            </div>
+            <ol style={{
+              margin: '0 0 0 1rem',
+              padding: 0,
+              color: 'var(--text-secondary)',
+              fontSize: '1rem',
+              lineHeight: '1.6'
+            }}>
+              <li style={{ marginBottom: '0.5rem' }}>Connect your Phantom wallet using the button in the navigation bar</li>
+              <li style={{ marginBottom: '0.5rem' }}>Create your perfect prompt and customize settings</li>
+              <li style={{ marginBottom: '0.5rem' }}>Click the "Pay & Generate" button to initiate the transaction</li>
+              <li style={{ marginBottom: '0.5rem' }}>Approve the {formatSol(IMAGE_COST)} payment in your Phantom wallet</li>
+              <li>Receive your AI-generated image once the transaction is confirmed</li>
+            </ol>
+          </div>
           
           <div style={{ 
             marginTop: '3rem',

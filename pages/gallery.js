@@ -3,6 +3,7 @@ import DarkModeToggle from '../components/DarkModeToggle';
 import { useTheme, useImageHistory, useSelectedImage } from './_app';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
+import { WalletConnectButton } from '../components/WalletConnect';
 
 export default function Gallery() {
   const { darkMode } = useTheme();
@@ -94,6 +95,7 @@ export default function Gallery() {
               borderRadius: '4px',
               transition: 'background 0.3s'
             }}>About</Link>
+            <WalletConnectButton />
           </div>
         </div>
       </header>
