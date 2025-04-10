@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import DarkModeToggle from '../components/DarkModeToggle';
-import { useTheme } from './_app';
+import { useTheme, useImageHistory, useSelectedImage } from './_app';
 import Link from 'next/link';
 
 // Available style presets for the generator
@@ -27,8 +27,26 @@ export default function Home() {
   const [height, setHeight] = useState(1024);
   const [samples, setSamples] = useState(1);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
-  const [imageHistory, setImageHistory] = useState([]);
   const { darkMode } = useTheme();
+  const { imageHistory, addToImageHistory } = useImageHistory();
+  const { selectedImageData, setSelectedImageData } = useSelectedImage();
+
+  // Apply selected image data when component loads
+  useEffect(() => {
+    if (selectedImageData) {
+      setPrompt(selectedImageData.prompt);
+      setStyle(selectedImageData.style);
+      setWidth(selectedImageData.width);
+      setHeight(selectedImageData.height);
+      
+      // Optional: also set the generated images
+      // setGeneratedImages(selectedImageData.images);
+      // setActiveImageIndex(0);
+      
+      // Clear the selected image data after applying it
+      setSelectedImageData(null);
+    }
+  }, [selectedImageData, setSelectedImageData]);
 
   const generateImage = async () => {
     setLoading(true);
@@ -59,18 +77,15 @@ export default function Home() {
       setGeneratedImages(newImages);
       setActiveImageIndex(0);
       
-      // Add to history
-      setImageHistory(prev => [
-        {
-          prompt,
-          style,
-          width,
-          height,
-          timestamp: new Date().toISOString(),
-          images: newImages
-        },
-        ...prev.slice(0, 9) // Keep last 10 generations
-      ]);
+      // Add to history using the context
+      addToImageHistory({
+        prompt,
+        style,
+        width,
+        height,
+        timestamp: new Date().toISOString(),
+        images: newImages
+      });
       
     } catch (err) {
       setError(err.message);

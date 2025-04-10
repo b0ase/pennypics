@@ -1,10 +1,33 @@
-import React from 'react';
+import React, { useState } from 'react';
 import DarkModeToggle from '../components/DarkModeToggle';
-import { useTheme } from './_app';
+import { useTheme, useImageHistory, useSelectedImage } from './_app';
 import Link from 'next/link';
+import { useRouter } from 'next/router';
 
 export default function Gallery() {
   const { darkMode } = useTheme();
+  const { imageHistory } = useImageHistory();
+  const { setSelectedImageData } = useSelectedImage();
+  const [selectedImage, setSelectedImage] = useState(null);
+  const router = useRouter();
+
+  // Function to format date
+  const formatDate = (dateString) => {
+    const options = { 
+      year: 'numeric', 
+      month: 'short', 
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    };
+    return new Date(dateString).toLocaleDateString(undefined, options);
+  };
+
+  // Function to handle "Create Similar Image" button click
+  const handleCreateSimilar = (imageData) => {
+    setSelectedImageData(imageData);
+    router.push('/');
+  };
 
   return (
     <div style={{ 
@@ -78,7 +101,7 @@ export default function Gallery() {
       <main style={{ 
         flex: 1, 
         padding: '3rem 2rem',
-        maxWidth: '1000px',
+        maxWidth: '1200px',
         margin: '0 auto',
         width: '100%'
       }}>
@@ -92,7 +115,7 @@ export default function Gallery() {
             color: 'var(--text-primary)',
             marginBottom: '1rem'
           }}>
-            Gallery
+            Image Gallery
           </h2>
           <p style={{
             fontSize: '1.1rem',
@@ -101,49 +124,286 @@ export default function Gallery() {
             color: 'var(--text-secondary)',
             lineHeight: '1.6'
           }}>
-            Browse through a collection of AI-generated images created with PennyPics.
+            Browse through your collection of AI-generated images created with PennyPics.
           </p>
         </div>
         
-        <div style={{ 
-          backgroundColor: 'var(--bg-secondary)', 
-          padding: '2.5rem', 
-          borderRadius: '12px',
-          boxShadow: 'var(--card-shadow)',
-          marginBottom: '2rem',
-          textAlign: 'center'
-        }}>
-          <p style={{
-            fontSize: '1.2rem',
-            color: 'var(--text-secondary)',
-            lineHeight: '1.6'
+        {imageHistory.length === 0 ? (
+          <div style={{ 
+            backgroundColor: 'var(--bg-secondary)', 
+            padding: '2.5rem', 
+            borderRadius: '12px',
+            boxShadow: 'var(--card-shadow)',
+            marginBottom: '2rem',
+            textAlign: 'center'
           }}>
-            Coming Soon!
-          </p>
-          <p style={{
-            fontSize: '1rem',
-            color: 'var(--text-secondary)',
-            marginTop: '1rem'
-          }}>
-            This feature is currently under development. Check back later to browse all generated images.
-          </p>
-          <Link href="/" style={{
-            display: 'inline-block',
-            marginTop: '2rem',
-            backgroundColor: 'var(--accent-color)',
-            color: 'white',
-            border: 'none',
-            padding: '0.9rem 2rem',
-            borderRadius: '8px',
-            cursor: 'pointer',
-            fontWeight: '600',
-            fontSize: '1rem',
-            textDecoration: 'none',
-            boxShadow: '0 4px 6px rgba(56, 178, 172, 0.3)',
-          }}>
-            Return to Image Generator
-          </Link>
-        </div>
+            <p style={{
+              fontSize: '1.2rem',
+              color: 'var(--text-secondary)',
+              lineHeight: '1.6'
+            }}>
+              No images yet!
+            </p>
+            <p style={{
+              fontSize: '1rem',
+              color: 'var(--text-secondary)',
+              marginTop: '1rem'
+            }}>
+              Generate some amazing images to see them in your gallery.
+            </p>
+            <Link href="/" style={{
+              display: 'inline-block',
+              marginTop: '2rem',
+              backgroundColor: 'var(--accent-color)',
+              color: 'white',
+              border: 'none',
+              padding: '0.9rem 2rem',
+              borderRadius: '8px',
+              cursor: 'pointer',
+              fontWeight: '600',
+              fontSize: '1rem',
+              textDecoration: 'none',
+              boxShadow: '0 4px 6px rgba(56, 178, 172, 0.3)',
+            }}>
+              Create Images
+            </Link>
+          </div>
+        ) : (
+          <>
+            {/* Selected image display */}
+            {selectedImage && (
+              <div style={{ 
+                backgroundColor: 'var(--bg-secondary)', 
+                padding: '2rem', 
+                borderRadius: '12px',
+                boxShadow: 'var(--card-shadow)',
+                marginBottom: '2rem'
+              }}>
+                <div style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  marginBottom: '1.5rem'
+                }}>
+                  <h3 style={{ 
+                    margin: 0, 
+                    fontSize: '1.5rem', 
+                    fontWeight: '700',
+                    color: 'var(--text-primary)'
+                  }}>
+                    Selected Image
+                  </h3>
+                  <button
+                    onClick={() => setSelectedImage(null)}
+                    style={{
+                      background: 'none',
+                      border: 'none',
+                      color: 'var(--text-secondary)',
+                      cursor: 'pointer',
+                      fontSize: '1.5rem',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      padding: '0.5rem',
+                      borderRadius: '50%',
+                      transition: 'background-color 0.2s'
+                    }}
+                  >
+                    ×
+                  </button>
+                </div>
+                
+                <div style={{ 
+                  backgroundColor: 'var(--bg-tertiary)',
+                  borderRadius: '8px',
+                  padding: '1rem',
+                  marginBottom: '1.5rem'
+                }}>
+                  <div style={{ marginBottom: '0.5rem' }}>
+                    <strong style={{ color: 'var(--text-primary)' }}>Prompt:</strong> 
+                    <span style={{ color: 'var(--text-secondary)' }}> {selectedImage.prompt}</span>
+                  </div>
+                  <div style={{ marginBottom: '0.5rem' }}>
+                    <strong style={{ color: 'var(--text-primary)' }}>Style:</strong> 
+                    <span style={{ color: 'var(--text-secondary)' }}> {selectedImage.style}</span>
+                  </div>
+                  <div style={{ marginBottom: '0.5rem' }}>
+                    <strong style={{ color: 'var(--text-primary)' }}>Dimensions:</strong> 
+                    <span style={{ color: 'var(--text-secondary)' }}> {selectedImage.width}×{selectedImage.height}px</span>
+                  </div>
+                  <div>
+                    <strong style={{ color: 'var(--text-primary)' }}>Created:</strong> 
+                    <span style={{ color: 'var(--text-secondary)' }}> {formatDate(selectedImage.timestamp)}</span>
+                  </div>
+                </div>
+
+                {/* Display all images in the selected group */}
+                <div style={{
+                  display: 'grid',
+                  gridTemplateColumns: selectedImage.images.length > 1 
+                    ? 'repeat(auto-fill, minmax(300px, 1fr))' 
+                    : '1fr',
+                  gap: '1.5rem',
+                  marginBottom: '1.5rem'
+                }}>
+                  {selectedImage.images.map((image, index) => (
+                    <div 
+                      key={index}
+                      style={{
+                        backgroundColor: 'var(--bg-tertiary)',
+                        borderRadius: '8px',
+                        overflow: 'hidden',
+                        boxShadow: 'var(--card-shadow)'
+                      }}
+                    >
+                      <img 
+                        src={image} 
+                        alt={`Generated image ${index + 1} for prompt: ${selectedImage.prompt}`}
+                        style={{
+                          width: '100%',
+                          height: 'auto',
+                          display: 'block'
+                        }}
+                      />
+                      <div style={{ 
+                        padding: '1rem',
+                        display: 'flex',
+                        justifyContent: 'center' 
+                      }}>
+                        <a 
+                          href={image}
+                          download={`pennypics-${new Date(selectedImage.timestamp).getTime()}-${index}.png`}
+                          style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '0.5rem',
+                            backgroundColor: 'var(--accent-color)',
+                            color: 'white',
+                            padding: '0.6rem 1.2rem',
+                            borderRadius: '6px',
+                            textDecoration: 'none',
+                            fontWeight: '500',
+                            fontSize: '0.9rem',
+                            transition: 'all 0.3s ease',
+                            boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                          }}
+                        >
+                          <svg style={{ width: '1rem', height: '1rem' }} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                          </svg>
+                          Download
+                        </a>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div style={{ textAlign: 'center' }}>
+                  <button
+                    onClick={() => handleCreateSimilar(selectedImage)}
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '0.5rem',
+                      backgroundColor: 'var(--accent-color)',
+                      color: 'white',
+                      padding: '0.8rem 1.5rem',
+                      borderRadius: '8px',
+                      cursor: 'pointer',
+                      fontWeight: '600',
+                      fontSize: '1rem',
+                      border: 'none',
+                      transition: 'all 0.3s ease',
+                      boxShadow: '0 4px 6px rgba(56, 178, 172, 0.3)'
+                    }}
+                  >
+                    <svg style={{ width: '1.2rem', height: '1.2rem' }} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                    </svg>
+                    Create Similar Image
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Gallery grid */}
+            <div style={{ 
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))',
+              gap: '1.5rem',
+              marginBottom: '2rem'
+            }}>
+              {imageHistory.map((item, index) => (
+                <div 
+                  key={index}
+                  style={{
+                    backgroundColor: 'var(--bg-secondary)',
+                    borderRadius: '10px',
+                    overflow: 'hidden',
+                    boxShadow: 'var(--card-shadow)',
+                    transition: 'transform 0.2s',
+                    cursor: 'pointer',
+                    ':hover': {
+                      transform: 'translateY(-4px)'
+                    }
+                  }}
+                  onClick={() => setSelectedImage(item)}
+                >
+                  <div style={{ 
+                    aspectRatio: '1',
+                    position: 'relative',
+                    overflow: 'hidden'
+                  }}>
+                    <img 
+                      src={item.images[0]} 
+                      alt={item.prompt}
+                      style={{
+                        width: '100%',
+                        height: '100%',
+                        objectFit: 'cover'
+                      }}
+                    />
+                    {item.images.length > 1 && (
+                      <div style={{
+                        position: 'absolute',
+                        top: '10px',
+                        right: '10px',
+                        backgroundColor: 'rgba(0,0,0,0.5)',
+                        color: 'white',
+                        borderRadius: '4px',
+                        padding: '2px 6px',
+                        fontSize: '0.75rem',
+                        fontWeight: '500'
+                      }}>
+                        {item.images.length} images
+                      </div>
+                    )}
+                  </div>
+                  <div style={{ padding: '1rem' }}>
+                    <p style={{ 
+                      margin: '0 0 0.5rem',
+                      fontSize: '1rem',
+                      fontWeight: '600',
+                      color: 'var(--text-primary)',
+                      textOverflow: 'ellipsis',
+                      overflow: 'hidden',
+                      whiteSpace: 'nowrap'
+                    }}>
+                      {item.prompt.length > 40 ? item.prompt.substring(0, 40) + '...' : item.prompt}
+                    </p>
+                    <p style={{ 
+                      margin: 0,
+                      fontSize: '0.8rem',
+                      color: 'var(--text-secondary)'
+                    }}>
+                      {formatDate(item.timestamp)}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </>
+        )}
       </main>
       
       <footer style={{
