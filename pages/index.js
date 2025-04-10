@@ -239,6 +239,56 @@ export default function Home() {
         margin: '0 auto',
         width: '100%'
       }}>
+        {/* Wallet connection notification banner */}
+        {!wallet.publicKey && (
+          <div style={{
+            backgroundColor: '#e53e3e',
+            color: 'white',
+            padding: '1rem',
+            borderRadius: '8px',
+            marginBottom: '2rem',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+            animation: 'fadeIn 0.5s'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+              <svg style={{ width: '2rem', height: '2rem', flexShrink: 0 }} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m0 0v2m0-2h2m-2 0H9m3-3V8m-3 5h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <div>
+                <h3 style={{ margin: '0 0 0.25rem', fontWeight: 'bold', fontSize: '1.1rem' }}>
+                  Wallet Connection Required
+                </h3>
+                <p style={{ margin: 0, fontSize: '0.9rem' }}>
+                  Please connect your Phantom wallet to generate images. Each generation costs {formatSol(IMAGE_COST)}.
+                </p>
+              </div>
+            </div>
+            <button
+              onClick={() => {
+                // Find the wallet button in the DOM and click it
+                const walletButton = document.querySelector('.wallet-adapter-button');
+                if (walletButton) walletButton.click();
+              }}
+              style={{
+                backgroundColor: 'white',
+                color: '#e53e3e',
+                border: 'none',
+                padding: '0.5rem 1rem',
+                borderRadius: '4px',
+                fontWeight: 'bold',
+                cursor: 'pointer',
+                flexShrink: 0,
+                fontSize: '0.9rem'
+              }}
+            >
+              Connect Now
+            </button>
+          </div>
+        )}
+
         <div style={{
           textAlign: 'center',
           marginBottom: '3rem'
@@ -1017,6 +1067,11 @@ export default function Home() {
       <style jsx global>{`
         @keyframes spin {
           to { transform: rotate(360deg); }
+        }
+        
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(-10px); }
+          to { opacity: 1; transform: translateY(0); }
         }
       `}</style>
     </div>

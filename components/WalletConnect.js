@@ -1,24 +1,48 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { WalletAdapterNetwork } from '@solana/wallet-adapter-base';
 import { ConnectionProvider, WalletProvider, useWallet } from '@solana/wallet-adapter-react';
-import { WalletModalProvider, WalletMultiButton } from '@solana/wallet-adapter-react-ui';
+import { WalletModalProvider, WalletMultiButton, useWalletModal } from '@solana/wallet-adapter-react-ui';
 import { PhantomWalletAdapter } from '@solana/wallet-adapter-wallets';
 import { clusterApiUrl } from '@solana/web3.js';
 
 // Import wallet adapter CSS
 import '@solana/wallet-adapter-react-ui/styles.css';
 
-// Simple wrapper around the WalletMultiButton
+// Simple wrapper around the WalletMultiButton with auto-connect functionality
 export function WalletConnectButton() {
-  const { publicKey } = useWallet();
+  const { publicKey, connecting } = useWallet();
+  const { visible, setVisible } = useWalletModal();
+  const [hasPrompted, setHasPrompted] = useState(false);
+  
+  // Show wallet modal automatically on load if not connected
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (!publicKey && !connecting && !visible && !hasPrompted) {
+        setVisible(true);
+        setHasPrompted(true);
+      }
+    }, 1500); // Wait 1.5 seconds to show the prompt
+    
+    return () => clearTimeout(timer);
+  }, [publicKey, connecting, visible, setVisible, hasPrompted]);
   
   return (
     <div style={{
       display: 'flex',
       alignItems: 'center',
-      gap: '0.5rem'
+      gap: '0.5rem',
+      position: 'relative'
     }}>
-      <WalletMultiButton />
+      <WalletMultiButton 
+        style={{
+          backgroundColor: publicKey ? 'var(--accent-color)' : '#e53e3e',
+          color: 'white',
+          fontWeight: 'bold',
+          border: 'none',
+          borderRadius: '8px',
+          animation: publicKey ? 'none' : 'pulse 2s infinite'
+        }}
+      />
       
       {publicKey && (
         <div style={{
@@ -31,6 +55,40 @@ export function WalletConnectButton() {
           {publicKey.toString().slice(0, 4)}...{publicKey.toString().slice(-4)}
         </div>
       )}
+      
+      {!publicKey && !visible && (
+        <div style={{
+          position: 'absolute',
+          top: '100%',
+          right: 0,
+          marginTop: '8px',
+          padding: '6px 10px',
+          backgroundColor: 'rgba(229, 62, 62, 0.9)',
+          color: 'white',
+          borderRadius: '4px',
+          fontSize: '12px',
+          whiteSpace: 'nowrap',
+          zIndex: 10,
+          boxShadow: '0 2px 10px rgba(0,0,0,0.2)',
+          pointerEvents: 'none'
+        }}>
+          Connect wallet to generate images
+        </div>
+      )}
+      
+      <style jsx>{`
+        @keyframes pulse {
+          0% {
+            box-shadow: 0 0 0 0 rgba(229, 62, 62, 0.7);
+          }
+          70% {
+            box-shadow: 0 0 0 10px rgba(229, 62, 62, 0);
+          }
+          100% {
+            box-shadow: 0 0 0 0 rgba(229, 62, 62, 0);
+          }
+        }
+      `}</style>
     </div>
   );
 }
