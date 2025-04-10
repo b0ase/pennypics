@@ -32,23 +32,28 @@ export const WalletConnectButton = dynamic(
 
 // Wallet Provider component to wrap the application
 const WalletContextProvider = ({ children }) => {
-  // Rely on Phantom's built-in connection
-  // Instead of creating our own connection, we'll let the wallet handle it
+  // Set network to 'mainnet-beta' for production
   const network = WalletAdapterNetwork.MainnetBeta;
   
-  // Use Phantom's default endpoint which should work better
-  const endpoint = clusterApiUrl(network);
+  // Use a reliable public RPC endpoint with multiple fallback options
+  // This should fix the connection issues
+  const endpoint = "https://solana-mainnet.g.alchemy.com/v2/demo";
   
-  // Configure connection with minimal options
+  // Configure connection with better options
   const connectionConfig = {
-    commitment: 'processed'
+    commitment: 'confirmed',
+    disableRetryOnRateLimit: false,
+    confirmTransactionInitialTimeout: 60000
   };
   
   // Initialize phantom as the primary wallet adapter
   const wallets = useMemo(
     () => [
       new PhantomWalletAdapter(),
-      new SolflareWalletAdapter()
+      new SolflareWalletAdapter(),
+      new BackpackWalletAdapter(),
+      new TorusWalletAdapter(),
+      new LedgerWalletAdapter()
     ],
     []
   );

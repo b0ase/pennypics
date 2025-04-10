@@ -9,9 +9,7 @@ const nextConfig = {
     ignoreBuildErrors: true
   },
   images: {
-    domains: ['api.stability.ai'],
-    unoptimized: true,
-    dangerouslyAllowSVG: true
+    domains: ['api.stability.ai']
   },
   
   // Add security headers to fix Content Security Policy issues
@@ -22,7 +20,7 @@ const nextConfig = {
         headers: [
           {
             key: 'Content-Security-Policy',
-            value: "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https://*.solana.com https://*.solflare.com"
+            value: "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; connect-src 'self' https://*.solana.com https://*.solflare.com"
           }
         ]
       }

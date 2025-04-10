@@ -991,6 +991,57 @@ export default function Home() {
             </p>
           </div>
         </div>
+
+        {/* After the error display section, add a manual wallet entry option */}
+        {error && error.includes('Insufficient balance') && (
+          <div style={{ 
+            marginTop: '1rem',
+            padding: '1rem',
+            backgroundColor: '#4A5568', 
+            borderRadius: '8px',
+            border: '1px solid #2D3748'
+          }}>
+            <h3 style={{ marginTop: 0, color: 'white' }}>Manual Wallet Address</h3>
+            <p style={{ color: '#CBD5E0' }}>If you're having trouble with your connected wallet, enter your wallet address manually:</p>
+            <div style={{ display: 'flex', gap: '0.5rem' }}>
+              <input 
+                type="text" 
+                placeholder="Enter Solana wallet address" 
+                defaultValue="DRJMA5AgMTGP6jL3uwgwuHG2SZRbNvzHzU8w8twjDnBv"
+                style={{ 
+                  padding: '0.5rem',
+                  borderRadius: '4px',
+                  border: '1px solid #4A5568',
+                  backgroundColor: '#2D3748',
+                  color: 'white',
+                  flex: 1
+                }}
+                id="manualWalletAddress"
+              />
+              <button 
+                onClick={() => {
+                  const address = document.getElementById('manualWalletAddress').value;
+                  if (address) {
+                    // Store this address temporarily
+                    sessionStorage.setItem('manualWalletAddress', address);
+                    alert('Manual wallet address saved: ' + address);
+                    window.location.reload();
+                  }
+                }}
+                style={{
+                  padding: '0.5rem 1rem',
+                  backgroundColor: 'var(--accent-color)',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '4px',
+                  cursor: 'pointer'
+                }}
+              >
+                Use This Wallet
+              </button>
+            </div>
+          </div>
+        )}
       </main>
       
       <footer style={{ 

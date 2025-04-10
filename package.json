@@ -9,10 +9,14 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@solana/wallet-adapter-backpack": "^0.1.14",
     "@solana/wallet-adapter-base": "^0.9.24",
+    "@solana/wallet-adapter-ledger": "^0.9.26",
     "@solana/wallet-adapter-phantom": "^0.9.25",
     "@solana/wallet-adapter-react": "^0.15.36",
     "@solana/wallet-adapter-react-ui": "^0.9.36",
+    "@solana/wallet-adapter-solflare": "^0.6.29",
+    "@solana/wallet-adapter-torus": "^0.11.29",
     "@solana/wallet-adapter-wallets": "^0.19.15",
     "@solana/web3.js": "^1.98.0",
     "next": "14.1.0",

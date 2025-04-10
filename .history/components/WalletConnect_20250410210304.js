@@ -2,12 +2,8 @@ import React, { useMemo } from 'react';
 import { ConnectionProvider, WalletProvider } from '@solana/wallet-adapter-react';
 import { WalletAdapterNetwork } from '@solana/wallet-adapter-base';
 import { PhantomWalletAdapter } from '@solana/wallet-adapter-phantom';
-import { SolflareWalletAdapter } from '@solana/wallet-adapter-solflare';
-import { BackpackWalletAdapter } from '@solana/wallet-adapter-backpack';
-import { TorusWalletAdapter } from '@solana/wallet-adapter-torus';
-import { LedgerWalletAdapter } from '@solana/wallet-adapter-ledger';
 import { WalletModalProvider, WalletMultiButton } from '@solana/wallet-adapter-react-ui';
-import { clusterApiUrl, Connection } from '@solana/web3.js';
+import { clusterApiUrl } from '@solana/web3.js';
 import dynamic from 'next/dynamic';
 
 // Import the wallet adapter styles
@@ -32,29 +28,17 @@ export const WalletConnectButton = dynamic(
 
 // Wallet Provider component to wrap the application
 const WalletContextProvider = ({ children }) => {
-  // Rely on Phantom's built-in connection
-  // Instead of creating our own connection, we'll let the wallet handle it
+  // Set network to 'mainnet-beta' for production
   const network = WalletAdapterNetwork.MainnetBeta;
   
-  // Use Phantom's default endpoint which should work better
-  const endpoint = clusterApiUrl(network);
+  // Get the endpoint for the Solana connection
+  const endpoint = useMemo(() => clusterApiUrl(network), [network]);
   
-  // Configure connection with minimal options
-  const connectionConfig = {
-    commitment: 'processed'
-  };
-  
-  // Initialize phantom as the primary wallet adapter
-  const wallets = useMemo(
-    () => [
-      new PhantomWalletAdapter(),
-      new SolflareWalletAdapter()
-    ],
-    []
-  );
+  // Initialize the wallet adapters you want to support
+  const wallets = useMemo(() => [new PhantomWalletAdapter()], []);
 
   return (
-    <ConnectionProvider endpoint={endpoint} config={connectionConfig}>
+    <ConnectionProvider endpoint={endpoint}>
       <WalletProvider wallets={wallets} autoConnect>
         <WalletModalProvider>
           {children}

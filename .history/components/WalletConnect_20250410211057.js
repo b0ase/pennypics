@@ -7,7 +7,7 @@ import { BackpackWalletAdapter } from '@solana/wallet-adapter-backpack';
 import { TorusWalletAdapter } from '@solana/wallet-adapter-torus';
 import { LedgerWalletAdapter } from '@solana/wallet-adapter-ledger';
 import { WalletModalProvider, WalletMultiButton } from '@solana/wallet-adapter-react-ui';
-import { clusterApiUrl, Connection } from '@solana/web3.js';
+import { clusterApiUrl } from '@solana/web3.js';
 import dynamic from 'next/dynamic';
 
 // Import the wallet adapter styles
@@ -32,29 +32,26 @@ export const WalletConnectButton = dynamic(
 
 // Wallet Provider component to wrap the application
 const WalletContextProvider = ({ children }) => {
-  // Rely on Phantom's built-in connection
-  // Instead of creating our own connection, we'll let the wallet handle it
+  // Set network to 'mainnet-beta' for production
   const network = WalletAdapterNetwork.MainnetBeta;
   
-  // Use Phantom's default endpoint which should work better
-  const endpoint = clusterApiUrl(network);
-  
-  // Configure connection with minimal options
-  const connectionConfig = {
-    commitment: 'processed'
-  };
+  // Use public RPC endpoint that doesn't require auth
+  const endpoint = "https://rpc-mainnet-fork.epochs.studio";
   
   // Initialize phantom as the primary wallet adapter
   const wallets = useMemo(
     () => [
       new PhantomWalletAdapter(),
-      new SolflareWalletAdapter()
+      new SolflareWalletAdapter(),
+      new BackpackWalletAdapter(),
+      new TorusWalletAdapter(),
+      new LedgerWalletAdapter()
     ],
     []
   );
 
   return (
-    <ConnectionProvider endpoint={endpoint} config={connectionConfig}>
+    <ConnectionProvider endpoint={endpoint}>
       <WalletProvider wallets={wallets} autoConnect>
         <WalletModalProvider>
           {children}
