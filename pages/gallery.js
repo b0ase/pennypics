@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import DarkModeToggle from '../components/DarkModeToggle';
 import { useTheme, useImageHistory, useSelectedImage } from './_app';
 import Link from 'next/link';
@@ -8,14 +8,32 @@ import { useWallet } from '@solana/wallet-adapter-react';
 
 export default function Gallery() {
   const { darkMode } = useTheme();
-  const { imageHistory } = useImageHistory();
+  const { imageHistory, clearImageHistory } = useImageHistory();
   const { setSelectedImageData } = useSelectedImage();
   const [selectedImage, setSelectedImage] = useState(null);
+  const [isMounted, setIsMounted] = useState(false);
   const router = useRouter();
   const wallet = useWallet();
+  const [storageError, setStorageError] = useState(false);
+
+  // Set mounted state
+  useEffect(() => {
+    setIsMounted(true);
+    
+    // Check for localStorage errors
+    try {
+      const test = localStorage.getItem('test');
+    } catch (error) {
+      if (error.name === 'QuotaExceededError') {
+        setStorageError(true);
+      }
+    }
+  }, []);
 
   // Function to format date
   const formatDate = (dateString) => {
+    if (!isMounted) return '';
+    
     const options = { 
       year: 'numeric', 
       month: 'short', 
@@ -30,6 +48,15 @@ export default function Gallery() {
   const handleCreateSimilar = (imageData) => {
     setSelectedImageData(imageData);
     router.push('/');
+  };
+
+  // Handle clearing the image history
+  const handleClearHistory = () => {
+    if (confirm('Are you sure you want to clear your image history? This cannot be undone.')) {
+      clearImageHistory();
+      setSelectedImage(null);
+      setStorageError(false);
+    }
   };
 
   return (
@@ -109,6 +136,52 @@ export default function Gallery() {
         margin: '0 auto',
         width: '100%'
       }}>
+        {/* Storage error notification */}
+        {storageError && (
+          <div style={{
+            backgroundColor: 'var(--error-bg)',
+            color: 'var(--error-text)',
+            padding: '1rem',
+            borderRadius: '8px',
+            marginBottom: '2rem',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+            animation: 'fadeIn 0.5s'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+              <svg style={{ width: '2rem', height: '2rem', flexShrink: 0 }} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+              <div>
+                <h3 style={{ margin: '0 0 0.25rem', fontWeight: 'bold', fontSize: '1.1rem' }}>
+                  Storage Quota Exceeded
+                </h3>
+                <p style={{ margin: 0, fontSize: '0.9rem' }}>
+                  Your browser's storage is full. Clear your image history to fix this issue.
+                </p>
+              </div>
+            </div>
+            <button
+              onClick={handleClearHistory}
+              style={{
+                backgroundColor: 'var(--error-text)',
+                color: 'var(--error-bg)',
+                border: 'none',
+                padding: '0.5rem 1rem',
+                borderRadius: '4px',
+                fontWeight: 'bold',
+                cursor: 'pointer',
+                flexShrink: 0,
+                fontSize: '0.9rem'
+              }}
+            >
+              Clear History
+            </button>
+          </div>
+        )}
+      
         {/* Wallet connection notification banner */}
         {!wallet.publicKey && (
           <div style={{
@@ -179,6 +252,25 @@ export default function Gallery() {
           }}>
             Browse through your collection of AI-generated images created with PennyPics.
           </p>
+          
+          {imageHistory.length > 0 && (
+            <button
+              onClick={handleClearHistory}
+              style={{
+                marginTop: '1rem',
+                backgroundColor: 'transparent',
+                color: 'var(--text-secondary)',
+                border: `1px solid var(--border-color)`,
+                padding: '0.5rem 1rem',
+                borderRadius: '4px',
+                fontWeight: '500',
+                cursor: 'pointer',
+                fontSize: '0.9rem'
+              }}
+            >
+              Clear History
+            </button>
+          )}
         </div>
         
         {imageHistory.length === 0 ? (
@@ -280,42 +372,47 @@ export default function Gallery() {
                     <strong style={{ color: 'var(--text-primary)' }}>Style:</strong> 
                     <span style={{ color: 'var(--text-secondary)' }}> {selectedImage.style}</span>
                   </div>
-                  <div style={{ marginBottom: '0.5rem' }}>
-                    <strong style={{ color: 'var(--text-primary)' }}>Dimensions:</strong> 
-                    <span style={{ color: 'var(--text-secondary)' }}> {selectedImage.width}×{selectedImage.height}px</span>
-                  </div>
+                  {selectedImage.width && selectedImage.height && (
+                    <div style={{ marginBottom: '0.5rem' }}>
+                      <strong style={{ color: 'var(--text-primary)' }}>Dimensions:</strong> 
+                      <span style={{ color: 'var(--text-secondary)' }}> {selectedImage.width}×{selectedImage.height}px</span>
+                    </div>
+                  )}
                   <div>
                     <strong style={{ color: 'var(--text-primary)' }}>Created:</strong> 
                     <span style={{ color: 'var(--text-secondary)' }}> {formatDate(selectedImage.timestamp)}</span>
                   </div>
                 </div>
 
-                {/* Display all images in the selected group */}
+                {/* Display thumbnail and/or full images if available */}
                 <div style={{
-                  display: 'grid',
-                  gridTemplateColumns: selectedImage.images.length > 1 
-                    ? 'repeat(auto-fill, minmax(300px, 1fr))' 
-                    : '1fr',
-                  gap: '1.5rem',
+                  display: 'flex',
+                  justifyContent: 'center',
                   marginBottom: '1.5rem'
                 }}>
-                  {selectedImage.images.map((image, index) => (
+                  {/* Display the available image - either thumbnail or first image in array */}
+                  {(selectedImage.images && selectedImage.images.length > 0) && (
                     <div 
-                      key={index}
                       style={{
                         backgroundColor: 'var(--bg-tertiary)',
                         borderRadius: '8px',
                         overflow: 'hidden',
-                        boxShadow: 'var(--card-shadow)'
+                        boxShadow: 'var(--card-shadow)',
+                        maxWidth: '500px'
                       }}
                     >
                       <img 
-                        src={image} 
-                        alt={`Generated image ${index + 1} for prompt: ${selectedImage.prompt}`}
+                        src={selectedImage.images && selectedImage.images.length > 0 ? selectedImage.images[0] : selectedImage.thumbnail}
+                        alt={selectedImage.prompt}
                         style={{
                           width: '100%',
                           height: 'auto',
-                          display: 'block'
+                          borderRadius: '8px',
+                          boxShadow: 'var(--card-shadow)'
+                        }}
+                        onError={(e) => {
+                          e.target.onerror = null;
+                          e.target.src = '/placeholder-image.png'; // Add a placeholder image
                         }}
                       />
                       <div style={{ 
@@ -324,8 +421,8 @@ export default function Gallery() {
                         justifyContent: 'center' 
                       }}>
                         <a 
-                          href={image}
-                          download={`pennypics-${new Date(selectedImage.timestamp).getTime()}-${index}.png`}
+                          href={selectedImage.images && selectedImage.images.length > 0 ? selectedImage.images[0] : selectedImage.thumbnail}
+                          download={`pennypics-${new Date(selectedImage.timestamp).getTime()}.png`}
                           style={{
                             display: 'inline-flex',
                             alignItems: 'center',
@@ -348,7 +445,7 @@ export default function Gallery() {
                         </a>
                       </div>
                     </div>
-                  ))}
+                  )}
                 </div>
 
                 <div style={{ textAlign: 'center' }}>
@@ -408,15 +505,23 @@ export default function Gallery() {
                     overflow: 'hidden'
                   }}>
                     <img 
-                      src={item.images[0]} 
+                      src={item.images && item.images.length > 0 ? item.images[0] : item.thumbnail}
                       alt={item.prompt}
                       style={{
                         width: '100%',
-                        height: '100%',
-                        objectFit: 'cover'
+                        height: '200px',
+                        objectFit: 'cover',
+                        borderRadius: '8px',
+                        transition: 'transform 0.2s',
+                        cursor: 'pointer',
+                        boxShadow: 'var(--card-shadow)'
+                      }}
+                      onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.src = '/placeholder-image.png'; // Add a placeholder image
                       }}
                     />
-                    {item.images.length > 1 && (
+                    {item.imageCount > 1 && (
                       <div style={{
                         position: 'absolute',
                         top: '10px',
@@ -428,7 +533,7 @@ export default function Gallery() {
                         fontSize: '0.75rem',
                         fontWeight: '500'
                       }}>
-                        {item.images.length} images
+                        {item.imageCount} images
                       </div>
                     )}
                   </div>

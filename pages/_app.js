@@ -2,22 +2,62 @@ import React, { createContext, useState, useEffect, useContext } from 'react';
 import WalletContextProvider from '../components/WalletConnect';
 
 // Create a context for dark mode
-export const ThemeContext = createContext();
+export const ThemeContext = createContext({
+  darkMode: true,
+  toggleDarkMode: () => {}
+});
+
 // Create a context for image history
-export const ImageHistoryContext = createContext();
+export const ImageHistoryContext = createContext({
+  imageHistory: [],
+  addToImageHistory: () => {},
+  clearImageHistory: () => {}
+});
+
 // Create a context for selected image data
-export const SelectedImageContext = createContext();
+export const SelectedImageContext = createContext({
+  selectedImageData: null,
+  setSelectedImageData: () => {}
+});
+
+// Helper function to manage localStorage safely
+const safeLocalStorage = {
+  setItem: (key, value) => {
+    try {
+      localStorage.setItem(key, value);
+      return true;
+    } catch (error) {
+      console.error(`Error storing ${key} in localStorage:`, error);
+      return false;
+    }
+  },
+  getItem: (key) => {
+    try {
+      return localStorage.getItem(key);
+    } catch (error) {
+      console.error(`Error retrieving ${key} from localStorage:`, error);
+      return null;
+    }
+  }
+};
 
 function MyApp({ Component, pageProps }) {
+  // Set initial state with default values
   const [darkMode, setDarkMode] = useState(true);
   const [imageHistory, setImageHistory] = useState([]);
   const [selectedImageData, setSelectedImageData] = useState(null);
+  const [isClient, setIsClient] = useState(false);
 
-  // Check for saved user preference or system preference on initial load
+  // Mark when component is mounted on the client
   useEffect(() => {
-    // Only run on client-side
-    if (typeof window !== 'undefined') {
-      const savedMode = localStorage.getItem('darkMode');
+    setIsClient(true);
+  }, []);
+
+  // Load preferences from localStorage only on the client after initial render
+  useEffect(() => {
+    if (isClient) {
+      // Load dark mode preference
+      const savedMode = safeLocalStorage.getItem('darkMode');
       if (savedMode !== null) {
         setDarkMode(savedMode === 'true');
       } else {
@@ -27,45 +67,85 @@ function MyApp({ Component, pageProps }) {
       }
 
       // Load image history from localStorage
-      const savedImageHistory = localStorage.getItem('imageHistory');
-      if (savedImageHistory) {
-        try {
+      try {
+        const savedImageHistory = safeLocalStorage.getItem('imageHistory');
+        if (savedImageHistory) {
           setImageHistory(JSON.parse(savedImageHistory));
-        } catch (error) {
-          console.error('Error parsing image history:', error);
         }
+      } catch (error) {
+        console.error('Error parsing image history:', error);
+        // If there's an error parsing, clear the corrupted data
+        clearImageHistory();
       }
     }
-  }, []);
+  }, [isClient]);
 
-  // Update localStorage when dark mode changes
+  // Update localStorage when dark mode changes - only on client
   useEffect(() => {
-    // Only run on client-side
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('darkMode', darkMode);
+    if (isClient) {
+      safeLocalStorage.setItem('darkMode', darkMode);
       document.body.classList.toggle('dark-mode', darkMode);
     }
-  }, [darkMode]);
+  }, [darkMode, isClient]);
 
-  // Update localStorage when image history changes
+  // Update localStorage when image history changes - only on client
   useEffect(() => {
-    // Only run on client-side
-    if (typeof window !== 'undefined' && imageHistory.length > 0) {
-      localStorage.setItem('imageHistory', JSON.stringify(imageHistory));
+    if (isClient && imageHistory.length > 0) {
+      try {
+        const compressedHistory = imageHistory.map(item => {
+          const { prompt, style, timestamp, images } = item;
+          return {
+            prompt: prompt.substring(0, 100), // Limit prompt length
+            style,
+            timestamp,
+            imageCount: images ? images.length : 0,
+            images: images, // Store all images
+            thumbnail: images && images.length > 0 ? images[0] : null
+          };
+        });
+        
+        // Try to store the compressed history
+        const success = safeLocalStorage.setItem('imageHistory', JSON.stringify(compressedHistory));
+        
+        // If storage failed due to quota, reduce the history size further
+        if (!success) {
+          // Keep only the 3 most recent items with all their images if we hit quota issues
+          const reducedHistory = compressedHistory.slice(0, 3);
+          safeLocalStorage.setItem('imageHistory', JSON.stringify(reducedHistory));
+        }
+      } catch (error) {
+        console.error('Error saving image history:', error);
+      }
     }
-  }, [imageHistory]);
+  }, [imageHistory, isClient]);
 
   const toggleDarkMode = () => {
     setDarkMode(!darkMode);
   };
 
   const addToImageHistory = (imageData) => {
-    setImageHistory(prev => [imageData, ...prev.slice(0, 19)]); // Keep last 20 generations
+    try {
+      // Keep last 10 generations instead of 20 to save space
+      setImageHistory(prev => [imageData, ...prev.slice(0, 9)]);
+    } catch (error) {
+      console.error('Error adding to image history:', error);
+    }
+  };
+
+  const clearImageHistory = () => {
+    setImageHistory([]);
+    if (isClient) {
+      try {
+        localStorage.removeItem('imageHistory');
+      } catch (error) {
+        console.error('Error clearing image history:', error);
+      }
+    }
   };
 
   return (
     <ThemeContext.Provider value={{ darkMode, toggleDarkMode }}>
-      <ImageHistoryContext.Provider value={{ imageHistory, addToImageHistory }}>
+      <ImageHistoryContext.Provider value={{ imageHistory, addToImageHistory, clearImageHistory }}>
         <SelectedImageContext.Provider value={{ selectedImageData, setSelectedImageData }}>
           <WalletContextProvider>
             <Component {...pageProps} />
@@ -125,6 +205,13 @@ function MyApp({ Component, pageProps }) {
               .wallet-adapter-modal-title {
                 color: var(--text-primary) !important;
               }
+
+              /* Add Phantom wallet icon styles */
+              .wallet-adapter-button[data-wallet="Phantom"] .wallet-adapter-button-start-icon {
+                background: url('data:image/svg+xml;base64,PHN2ZyBmaWxsPSJub25lIiBoZWlnaHQ9IjM0IiB3aWR0aD0iMzQiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGxpbmVhckdyYWRpZW50IGlkPSJhIiB4MT0iMTYuODM4IiB4Mj0iMTUuNTM2IiB5MT0iNC44NTgiIHkyPSIzMC4wNDEiIGdyYWRpZW50VW5pdHM9InVzZXJTcGFjZU9uVXNlIj48c3RvcCBzdG9wLWNvbG9yPSIjNTM0YmIxIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjNTUxYmY5Ii8+PC9saW5lYXJHcmFkaWVudD48bGluZWFyR3JhZGllbnQgaWQ9ImIiIHgxPSIyLjE3OCIgeDI9IjMzLjA3OCIgeTE9IjE3LjE4NyIgeTI9IjE3LjE4NyIgZ3JhZGllbnRVbml0cz0idXNlclNwYWNlT25Vc2UiPjxzdG9wIHN0b3AtY29sb3I9IiM1MzRiYjEiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM1NTFiZjkiLz48L2xpbmVhckdyYWRpZW50PjxjaXJjbGUgY3g9IjE3IiBjeT0iMTciIGZpbGw9InVybCgjYSkiIHI9IjE3Ii8+PHBhdGggZD0ibTI5LjE3IDE3LjIwN2MtLjA4NS00LjkwOC0zLjk0My04Ljg0OS04LjU2NS04Ljg0OWE4LjYgOC42IDAgMCAwIC0xLjQxNS4xMTdjLTQuNTQ5Ljc1NC03LjU3MSA1LjI2OC02Ljc5NyAxMC4xMTkuNzcyIDQuODUyIDUuMDc2IDguMjE5IDkuNjI0IDcuNDY2IDQuNTQ5LS43NTMgNy41NzItNS4yNjggNi43OTgtMTAuMTJhOC4zOTUgOC4zOTUgMCAwIDAgLS4zNzUtMS4yNzJjLS4wMzYtLjEwMi4wMi0uMjE0LjEyNS0uMjQ3bDEuODkzLS42MDRjLjEwNy0uMDM0LjIyMi4wMjMuMjU2LjEyOGEzLjM4MiAzLjM4MiAwIDAgMSAuMDg0LjMwNGMuNDIyIDIuMzQ2LjE4NCA0LjY0Ny0uNjE1IDYuNzYxLS44MDEgMi4xMTUtMi4xNDMgMy45MjUtMy44OTMgNS4yNzUtMS43NDkgMS4zNS0zLjc5NyAyLjIzMi01Ljk2NCAyLjU2LTIuMTY4LjMyNy00LjMxLS4wNDgtNi4yMzQtMS4wODYtMS45MjQtMS4wMzgtMy40NzItMi41ODgtNC40ODktNC40ODVzLTEuNTEyLTQuMDY0LTEuMTg1LTYuMjMyYy4zMjgtMi4xNjcgMS4yMS00LjIxNSAyLjU2LTUuOTY0IDEuMzUtMS43NSAzLjE2LTMuMDkyIDUuMjc1LTMuODkzIDIuMTE0LS44IDQuNDE1LTEuMDM3IDYuNzYxLS42MTUuMTA0LjAxOS4xODQuMTA5LjE4NC4yMTV2MS45NjJjMCAuMTA4LS4wODIuMi0uMTkuMjExLTQuOTc4LjA1My04Ljk3NSA0LjEyMy04Ljg5IDkuMTAxLjA4NSA0Ljk3OCA0LjE0NCA4Ljk1NyA5LjEyMiA4Ljg3MnM4Ljk1Ny00LjE0NCA4Ljg3Mi05LjEyMnoiIGZpbGw9InVybCgjYikiLz48L3N2Zz4=') center center no-repeat !important;
+                background-size: 100% !important;
+                border-radius: 50% !important;
+              }
             `}</style>
           </WalletContextProvider>
         </SelectedImageContext.Provider>
@@ -148,4 +235,4 @@ export function useSelectedImage() {
   return useContext(SelectedImageContext);
 }
 
-export default MyApp; 
+export default MyApp;
