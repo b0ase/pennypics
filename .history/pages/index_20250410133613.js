@@ -286,132 +286,6 @@ export default function Home() {
             </button>
           </div>
           
-          {/* Advanced options panel */}
-          {showAdvanced && (
-            <div style={{ 
-              marginBottom: '2rem',
-              padding: '1.5rem',
-              backgroundColor: '#f7fafc',
-              borderRadius: '8px',
-              border: '1px solid #e2e8f0',
-            }}>
-              <h3 style={{ 
-                fontSize: '1rem', 
-                fontWeight: '600',
-                marginTop: 0,
-                marginBottom: '1rem',
-                color: '#2d3748',
-              }}>
-                Advanced Settings
-              </h3>
-              
-              <div style={{ 
-                display: 'grid', 
-                gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
-                gap: '1.5rem',
-              }}>
-                {/* Image dimensions */}
-                <div>
-                  <label
-                    style={{
-                      display: 'block',
-                      marginBottom: '0.5rem',
-                      fontWeight: '500',
-                      color: '#4a5568',
-                      fontSize: '0.9rem'
-                    }}
-                  >
-                    Width (px)
-                  </label>
-                  <select
-                    value={width}
-                    onChange={(e) => setWidth(Number(e.target.value))}
-                    style={{
-                      width: '100%',
-                      padding: '0.6rem 0.8rem',
-                      borderRadius: '6px',
-                      border: '1px solid #e2e8f0',
-                      backgroundColor: 'white',
-                      fontSize: '0.9rem',
-                      color: '#2d3748'
-                    }}
-                  >
-                    <option value={512}>512px</option>
-                    <option value={768}>768px</option>
-                    <option value={1024}>1024px</option>
-                    <option value={1280}>1280px</option>
-                    <option value={1536}>1536px</option>
-                  </select>
-                </div>
-                
-                <div>
-                  <label
-                    style={{
-                      display: 'block',
-                      marginBottom: '0.5rem',
-                      fontWeight: '500',
-                      color: '#4a5568',
-                      fontSize: '0.9rem'
-                    }}
-                  >
-                    Height (px)
-                  </label>
-                  <select
-                    value={height}
-                    onChange={(e) => setHeight(Number(e.target.value))}
-                    style={{
-                      width: '100%',
-                      padding: '0.6rem 0.8rem',
-                      borderRadius: '6px',
-                      border: '1px solid #e2e8f0',
-                      backgroundColor: 'white',
-                      fontSize: '0.9rem',
-                      color: '#2d3748'
-                    }}
-                  >
-                    <option value={512}>512px</option>
-                    <option value={768}>768px</option>
-                    <option value={1024}>1024px</option>
-                    <option value={1280}>1280px</option>
-                    <option value={1536}>1536px</option>
-                  </select>
-                </div>
-                
-                <div>
-                  <label
-                    style={{
-                      display: 'block',
-                      marginBottom: '0.5rem',
-                      fontWeight: '500',
-                      color: '#4a5568',
-                      fontSize: '0.9rem'
-                    }}
-                  >
-                    Number of images
-                  </label>
-                  <select
-                    value={samples}
-                    onChange={(e) => setSamples(Number(e.target.value))}
-                    style={{
-                      width: '100%',
-                      padding: '0.6rem 0.8rem',
-                      borderRadius: '6px',
-                      border: '1px solid #e2e8f0',
-                      backgroundColor: 'white',
-                      fontSize: '0.9rem',
-                      color: '#2d3748'
-                    }}
-                  >
-                    <option value={1}>1 image</option>
-                    <option value={2}>2 images</option>
-                    <option value={3}>3 images</option>
-                    <option value={4}>4 images</option>
-                  </select>
-                </div>
-              </div>
-            </div>
-          )}
-          
           <div style={{ textAlign: 'center' }}>
             <button 
               onClick={generateImage}
@@ -505,7 +379,7 @@ export default function Home() {
               </h3>
               <a 
                 href={generatedImages[activeImageIndex]}
-                download={`pennypics-${new Date().getTime()}.png`}
+                download="pennypics-generated.png"
                 style={{
                   display: 'inline-flex',
                   alignItems: 'center',
@@ -543,46 +417,6 @@ export default function Home() {
                   <strong>Prompt:</strong> {prompt}
                 </p>
               </div>
-              
-              {generatedImages.length > 1 && (
-                <div style={{ marginBottom: '1rem' }}>
-                  <div style={{ 
-                    display: 'flex', 
-                    justifyContent: 'center',
-                    gap: '0.5rem',
-                    marginBottom: '1rem'
-                  }}>
-                    {generatedImages.map((img, index) => (
-                      <button
-                        key={index}
-                        onClick={() => setActiveImageIndex(index)}
-                        style={{
-                          width: '40px',
-                          height: '40px',
-                          borderRadius: '6px',
-                          border: index === activeImageIndex ? '2px solid #38b2ac' : '2px solid transparent',
-                          padding: '2px',
-                          backgroundColor: '#f7fafc',
-                          cursor: 'pointer',
-                          overflow: 'hidden',
-                        }}
-                      >
-                        <img 
-                          src={img} 
-                          alt={`Thumbnail ${index + 1}`} 
-                          style={{ 
-                            width: '100%', 
-                            height: '100%', 
-                            objectFit: 'cover',
-                            borderRadius: '4px'
-                          }} 
-                        />
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-              
               <div style={{ 
                 borderRadius: '8px',
                 overflow: 'hidden',
@@ -598,79 +432,6 @@ export default function Home() {
                   }} 
                 />
               </div>
-            </div>
-          </div>
-        )}
-
-        {/* Image history section */}
-        {imageHistory.length > 0 && (
-          <div style={{ marginTop: '3rem' }}>
-            <h3 style={{ 
-              fontSize: '1.25rem', 
-              fontWeight: '700', 
-              color: '#2d3748',
-              marginBottom: '1.5rem',
-              textAlign: 'center'
-            }}>
-              Recent Generations
-            </h3>
-            
-            <div style={{ 
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
-              gap: '1rem'
-            }}>
-              {imageHistory.map((item, historyIndex) => (
-                <div 
-                  key={historyIndex}
-                  style={{
-                    backgroundColor: 'white',
-                    borderRadius: '8px',
-                    overflow: 'hidden',
-                    boxShadow: '0 4px 8px rgba(0,0,0,0.05)',
-                    transition: 'transform 0.2s',
-                    cursor: 'pointer',
-                    ':hover': {
-                      transform: 'translateY(-4px)'
-                    }
-                  }}
-                  onClick={() => {
-                    setPrompt(item.prompt);
-                    setStyle(item.style);
-                    setWidth(item.width);
-                    setHeight(item.height);
-                    setGeneratedImages(item.images);
-                    setActiveImageIndex(0);
-                  }}
-                >
-                  <div style={{ 
-                    aspectRatio: '1 / 1',
-                    overflow: 'hidden'
-                  }}>
-                    <img 
-                      src={item.images[0]} 
-                      alt={item.prompt}
-                      style={{
-                        width: '100%',
-                        height: '100%',
-                        objectFit: 'cover'
-                      }}
-                    />
-                  </div>
-                  <div style={{ padding: '0.75rem' }}>
-                    <p style={{ 
-                      margin: 0,
-                      fontSize: '0.8rem',
-                      color: '#4a5568',
-                      textOverflow: 'ellipsis',
-                      overflow: 'hidden',
-                      whiteSpace: 'nowrap'
-                    }}>
-                      {item.prompt}
-                    </p>
-                  </div>
-                </div>
-              ))}
             </div>
           </div>
         )}
@@ -704,9 +465,9 @@ export default function Home() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
               </svg>
             </div>
-            <h3 style={{ margin: '0 0 0.5rem', color: '#2d3748', fontWeight: '600' }}>Multiple Styles</h3>
+            <h3 style={{ margin: '0 0 0.5rem', color: '#2d3748', fontWeight: '600' }}>Super Fast</h3>
             <p style={{ margin: 0, color: '#4a5568', fontSize: '0.9rem' }}>
-              Choose from various artistic styles to create the perfect image for your needs.
+              Generate beautiful images in seconds using advanced AI technology.
             </p>
           </div>
           
@@ -732,9 +493,9 @@ export default function Home() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
               </svg>
             </div>
-            <h3 style={{ margin: '0 0 0.5rem', color: '#2d3748', fontWeight: '600' }}>Advanced Options</h3>
+            <h3 style={{ margin: '0 0 0.5rem', color: '#2d3748', fontWeight: '600' }}>High Quality</h3>
             <p style={{ margin: 0, color: '#4a5568', fontSize: '0.9rem' }}>
-              Control image size and generate multiple versions to find your perfect result.
+              Get high-resolution images that look professional and detailed.
             </p>
           </div>
           
@@ -760,9 +521,9 @@ export default function Home() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
               </svg>
             </div>
-            <h3 style={{ margin: '0 0 0.5rem', color: '#2d3748', fontWeight: '600' }}>Generation History</h3>
+            <h3 style={{ margin: '0 0 0.5rem', color: '#2d3748', fontWeight: '600' }}>Unlimited Use</h3>
             <p style={{ margin: 0, color: '#4a5568', fontSize: '0.9rem' }}>
-              Browse your recent creations and reuse your favorite generation settings.
+              Create as many images as you want for personal or commercial use.
             </p>
           </div>
         </div>
@@ -817,7 +578,7 @@ export default function Home() {
               justifyContent: 'center' 
             }}>
               <svg style={{ width: '1.2rem', height: '1.2rem' }} fill="currentColor" viewBox="0 0 24 24">
-                <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
+                <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
               </svg>
             </a>
             <a href="#" style={{ 
