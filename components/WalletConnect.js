@@ -8,6 +8,7 @@ import { clusterApiUrl } from '@solana/web3.js';
 // Import wallet adapter CSS
 import '@solana/wallet-adapter-react-ui/styles.css';
 
+// Simple wrapper around the WalletMultiButton
 export function WalletConnectButton() {
   const { publicKey } = useWallet();
   
@@ -17,17 +18,7 @@ export function WalletConnectButton() {
       alignItems: 'center',
       gap: '0.5rem'
     }}>
-      <WalletMultiButton style={{
-        backgroundColor: 'var(--accent-color)',
-        border: 'none',
-        borderRadius: '8px',
-        color: 'white',
-        cursor: 'pointer',
-        fontSize: '14px',
-        fontWeight: '600',
-        padding: '8px 16px',
-        transition: 'all 0.2s ease'
-      }} />
+      <WalletMultiButton />
       
       {publicKey && (
         <div style={{
@@ -44,6 +35,7 @@ export function WalletConnectButton() {
   );
 }
 
+// Main provider component that wraps your app with all the necessary Solana providers
 const WalletContextProvider = ({ children }) => {
   // The network can be set to 'devnet', 'testnet', or 'mainnet-beta'
   const network = WalletAdapterNetwork.Devnet;
@@ -51,8 +43,7 @@ const WalletContextProvider = ({ children }) => {
   // You can also provide a custom RPC endpoint
   const endpoint = useMemo(() => clusterApiUrl(network), [network]);
   
-  // @solana/wallet-adapter-wallets includes all the adapters but supports tree shaking
-  // and lazy loading --
+  // We're only using Phantom wallet for simplicity
   const wallets = useMemo(() => [new PhantomWalletAdapter()], []);
   
   return (
