@@ -4,7 +4,7 @@ import { WalletAdapterNetwork } from '@solana/wallet-adapter-base';
 import { PhantomWalletAdapter } from '@solana/wallet-adapter-phantom';
 import { SolflareWalletAdapter } from '@solana/wallet-adapter-solflare';
 import { WalletModalProvider, WalletMultiButton } from '@solana/wallet-adapter-react-ui';
-import { clusterApiUrl } from '@solana/web3.js';
+import { clusterApiUrl, Connection } from '@solana/web3.js';
 import dynamic from 'next/dynamic';
 
 // Import the wallet adapter styles
@@ -35,7 +35,7 @@ export const WalletContextProvider = ({ children }) => {
   // Set the network and endpoint
   const network = WalletAdapterNetwork.Mainnet;
   
-  // Create a custom RPC URL using Helius API - use minimal config to avoid issues
+  // Create a custom RPC URL using Helius API
   const endpoint = useMemo(() => {
     // Get the Helius API key from environment variable
     const heliusApiKey = process.env.NEXT_PUBLIC_HELIUS_API_KEY;
@@ -50,7 +50,7 @@ export const WalletContextProvider = ({ children }) => {
     }
   }, [network]);
 
-  // Configure the wallet adapters with minimal configuration
+  // Configure the wallet connection
   const wallets = useMemo(
     () => [
       new PhantomWalletAdapter(),
@@ -59,9 +59,8 @@ export const WalletContextProvider = ({ children }) => {
     []
   );
 
-  // Higher commitment level can lead to timeouts, use the most permissive setting
   return (
-    <ConnectionProvider endpoint={endpoint} config={{ commitment: 'processed' }}>
+    <ConnectionProvider endpoint={endpoint}>
       <WalletProvider wallets={wallets} autoConnect>
         <WalletModalProvider>
           {children}

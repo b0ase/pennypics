@@ -89,68 +89,40 @@ export default function Home() {
     setError(null);
     setPaymentStatus({ paid: false, message: 'Processing payment...' });
 
-    // Add retry logic - try up to 3 times
-    let attempts = 0;
-    const maxAttempts = 3;
-    
-    while (attempts < maxAttempts) {
-      attempts++;
-      
-      if (attempts > 1) {
-        setPaymentStatus({ 
-          paid: false, 
-          message: `Retrying payment (attempt ${attempts}/${maxAttempts})...` 
-        });
-        
-        // Wait a bit before retrying
-        await new Promise(resolve => setTimeout(resolve, 2000));
-      }
-      
-      try {
-        // Send payment transaction
-        console.log(`Payment attempt ${attempts}/${maxAttempts}`);
-        const paymentResult = await sendPaymentTransaction(connection, wallet);
+    try {
+      // Send payment transaction
+      const paymentResult = await sendPaymentTransaction(connection, wallet);
 
-        if (!paymentResult.success) {
-          throw new Error(paymentResult.error || 'Payment failed');
-        }
-
-        // Record the payment in our history
-        const paymentData = {
-          amount: PAYMENT_AMOUNT / SOL_TO_LAMPORTS,
-          type: 'Image Generation',
-          timestamp: new Date().toISOString(),
-          transactionSignature: paymentResult.signature,
-          prompt: prompt.substring(0, 100) // Include part of the prompt as reference
-        };
-        
-        // Add to payment history
-        addPayment(paymentData);
-        
-        setPaymentStatus({ 
-          paid: true, 
-          message: 'Payment successful! Generating image...',
-          signature: paymentResult.signature 
-        });
-        
-        return true;
-      } catch (err) {
-        console.error(`Payment attempt ${attempts} error:`, err);
-        
-        // If we've reached max attempts, show error
-        if (attempts >= maxAttempts) {
-          setError(`Payment error: ${err.message}`);
-          setPaymentStatus({ paid: false, message: '' });
-          setLoading(false);
-          return false;
-        }
-        
-        // Otherwise, we'll retry
-        console.log(`Retrying payment in 2 seconds...`);
+      if (!paymentResult.success) {
+        throw new Error(paymentResult.error || 'Payment failed');
       }
+
+      // Record the payment in our history
+      const paymentData = {
+        amount: PAYMENT_AMOUNT / SOL_TO_LAMPORTS,
+        type: 'Image Generation',
+        timestamp: new Date().toISOString(),
+        transactionSignature: paymentResult.signature,
+        prompt: prompt.substring(0, 100) // Include part of the prompt as reference
+      };
+      
+      // Add to payment history
+      addPayment(paymentData);
+      
+      setPaymentStatus({ 
+        paid: true, 
+        message: 'Payment successful! Generating image...',
+        signature: paymentResult.signature 
+      });
+      
+      return true;
+    } catch (err) {
+      console.error('Payment error:', err);
+      setError(`Payment error: ${err.message}`);
+      setPaymentStatus({ paid: false, message: '' });
+      setLoading(false);
+      return false;
     }
-    
-    return false;
   };
 
   const generateImage = async () => {

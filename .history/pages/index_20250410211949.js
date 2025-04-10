@@ -89,68 +89,40 @@ export default function Home() {
     setError(null);
     setPaymentStatus({ paid: false, message: 'Processing payment...' });
 
-    // Add retry logic - try up to 3 times
-    let attempts = 0;
-    const maxAttempts = 3;
-    
-    while (attempts < maxAttempts) {
-      attempts++;
-      
-      if (attempts > 1) {
-        setPaymentStatus({ 
-          paid: false, 
-          message: `Retrying payment (attempt ${attempts}/${maxAttempts})...` 
-        });
-        
-        // Wait a bit before retrying
-        await new Promise(resolve => setTimeout(resolve, 2000));
-      }
-      
-      try {
-        // Send payment transaction
-        console.log(`Payment attempt ${attempts}/${maxAttempts}`);
-        const paymentResult = await sendPaymentTransaction(connection, wallet);
+    try {
+      // Send payment transaction
+      const paymentResult = await sendPaymentTransaction(connection, wallet);
 
-        if (!paymentResult.success) {
-          throw new Error(paymentResult.error || 'Payment failed');
-        }
-
-        // Record the payment in our history
-        const paymentData = {
-          amount: PAYMENT_AMOUNT / SOL_TO_LAMPORTS,
-          type: 'Image Generation',
-          timestamp: new Date().toISOString(),
-          transactionSignature: paymentResult.signature,
-          prompt: prompt.substring(0, 100) // Include part of the prompt as reference
-        };
-        
-        // Add to payment history
-        addPayment(paymentData);
-        
-        setPaymentStatus({ 
-          paid: true, 
-          message: 'Payment successful! Generating image...',
-          signature: paymentResult.signature 
-        });
-        
-        return true;
-      } catch (err) {
-        console.error(`Payment attempt ${attempts} error:`, err);
-        
-        // If we've reached max attempts, show error
-        if (attempts >= maxAttempts) {
-          setError(`Payment error: ${err.message}`);
-          setPaymentStatus({ paid: false, message: '' });
-          setLoading(false);
-          return false;
-        }
-        
-        // Otherwise, we'll retry
-        console.log(`Retrying payment in 2 seconds...`);
+      if (!paymentResult.success) {
+        throw new Error(paymentResult.error || 'Payment failed');
       }
+
+      // Record the payment in our history
+      const paymentData = {
+        amount: PAYMENT_AMOUNT / SOL_TO_LAMPORTS,
+        type: 'Image Generation',
+        timestamp: new Date().toISOString(),
+        transactionSignature: paymentResult.signature,
+        prompt: prompt.substring(0, 100) // Include part of the prompt as reference
+      };
+      
+      // Add to payment history
+      addPayment(paymentData);
+      
+      setPaymentStatus({ 
+        paid: true, 
+        message: 'Payment successful! Generating image...',
+        signature: paymentResult.signature 
+      });
+      
+      return true;
+    } catch (err) {
+      console.error('Payment error:', err);
+      setError(`Payment error: ${err.message}`);
+      setPaymentStatus({ paid: false, message: '' });
+      setLoading(false);
+      return false;
     }
-    
-    return false;
   };
 
   const generateImage = async () => {
@@ -256,7 +228,7 @@ export default function Home() {
             fontWeight: '700',
             letterSpacing: '0.5px'
           }}>
-            <span style={{ color: 'var(--accent-color)' }}>Penny</span>Pics
+            <span style={{ color: 'var(--accent-color)' }}>Penny</span>Pics.store
           </h1>
           <div style={{ 
             display: 'flex', 
@@ -717,50 +689,17 @@ export default function Home() {
             borderRadius: '8px',
             border: darkMode ? '1px solid #22543d' : '1px solid #9ae6b4',
             display: 'flex',
-            flexDirection: 'column',
+            alignItems: 'center',
             gap: '0.75rem'
           }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-              <svg style={{ width: '1.5rem', height: '1.5rem', flexShrink: 0 }} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-              </svg>
-              <div>
-                <p style={{ fontWeight: '600', margin: 0 }}>Payment Successful!</p>
-                <p style={{ margin: '0.25rem 0 0 0', fontSize: '0.9rem' }}>
-                  {paymentStatus.message}
-                </p>
-              </div>
-            </div>
-            <div style={{ 
-              backgroundColor: darkMode ? 'rgba(0, 0, 0, 0.2)' : 'rgba(0, 0, 0, 0.05)', 
-              padding: '0.75rem', 
-              borderRadius: '6px',
-              fontSize: '0.85rem',
-              wordBreak: 'break-all'
-            }}>
-              <p style={{ margin: '0 0 0.5rem 0', fontWeight: '600' }}>Transaction Details:</p>
-              <p style={{ margin: '0 0 0.25rem 0' }}>
-                Signature: <a 
-                  href={`https://explorer.solana.com/tx/${paymentStatus.signature}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style={{ color: 'var(--accent-color)' }}
-                >
-                  {paymentStatus.signature}
-                </a>
-              </p>
-              <p style={{ margin: '0 0 0.25rem 0' }}>
-                Amount: {PAYMENT_AMOUNT / SOL_TO_LAMPORTS} SOL
-              </p>
-              <p style={{ margin: '0' }}>
-                Recipient: <a 
-                  href={`https://explorer.solana.com/address/${PAYMENT_RECEIVER_ADDRESS}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style={{ color: 'var(--accent-color)' }}
-                >
-                  {PAYMENT_RECEIVER_ADDRESS}
-                </a>
+            <svg style={{ width: '1.5rem', height: '1.5rem', flexShrink: 0 }} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            </svg>
+            <div>
+              <p style={{ fontWeight: '600', margin: 0 }}>Payment Successful!</p>
+              <p style={{ margin: '0.25rem 0 0 0', fontSize: '0.9rem' }}>
+                Transaction: {paymentStatus.signature?.substring(0, 8)}...
+                {paymentStatus.signature?.substring(paymentStatus.signature.length - 8)}
               </p>
             </div>
           </div>

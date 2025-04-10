@@ -1,7 +1,6 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import { useRouter } from 'next/router';
 import WalletContextProvider from '../components/WalletConnect';
-import '../styles/globals.css';
 
 // Create a context for dark mode
 export const ThemeContext = createContext();

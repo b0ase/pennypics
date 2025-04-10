@@ -1,0 +1,44 @@
+/* Base styles to prevent flash of white screen */
+html {
+  background-color: #121212;
+  color: #e2e8f0;
+}
+
+html.dark-mode-init,
+html.dark-mode {
+  background-color: #121212;
+  color: #e2e8f0;
+}
+
+html:not(.dark-mode-init):not(.dark-mode) {
+  background-color: #f8f9fa;
+  color: #2d3748;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  min-height: 100vh;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+}
+
+/* Spinner animation for loading states */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Fade in animation for content */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Wallet adapter overrides */
+.wallet-adapter-button {
+  transition: background-color 0.2s ease !important;
+}
+
+.wallet-adapter-modal-wrapper {
+  animation: fadeIn 0.3s ease;
+} 
