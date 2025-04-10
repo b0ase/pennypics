@@ -1,13 +1,10 @@
 import React from 'react';
 import DarkModeToggle from '../components/DarkModeToggle';
-import { WalletConnectButton } from '../components/WalletConnect';
 import { useTheme } from './_app';
-import { useWallet } from '@solana/wallet-adapter-react';
 import Link from 'next/link';
 
 export default function About() {
   const { darkMode } = useTheme();
-  const wallet = useWallet();
 
   return (
     <div style={{ 
@@ -74,7 +71,6 @@ export default function About() {
               background: 'rgba(255,255,255,0.1)',
               transition: 'background 0.3s'
             }}>About</Link>
-            <WalletConnectButton />
           </div>
         </div>
       </header>
@@ -105,8 +101,7 @@ export default function About() {
             color: 'var(--text-secondary)',
             lineHeight: '1.6'
           }}>
-            Transforming your text descriptions into beautiful AI-generated images
-            powered by Solana blockchain technology.
+            Transforming your text descriptions into beautiful AI-generated images.
           </p>
         </div>
         
@@ -161,8 +156,7 @@ export default function About() {
             <li style={{ marginBottom: '0.75rem' }}>Customize image dimensions to suit your needs</li>
             <li style={{ marginBottom: '0.75rem' }}>Create multiple variations with a single prompt</li>
             <li style={{ marginBottom: '0.75rem' }}>Dark mode support for comfortable viewing</li>
-            <li style={{ marginBottom: '0.75rem' }}>Download your generated images for use in your projects</li>
-            <li>Powered by Solana blockchain for secure, transparent payments</li>
+            <li>Download your generated images for use in your projects</li>
           </ul>
           
           <h3 style={{ 
@@ -186,28 +180,6 @@ export default function About() {
             understand and visualize complex text descriptions with remarkable accuracy.
           </p>
           
-          <h3 style={{ 
-            fontSize: '1.5rem', 
-            fontWeight: '700',
-            marginTop: '2.5rem',
-            marginBottom: '1.5rem',
-            color: 'var(--text-primary)',
-          }}>
-            Blockchain Integration
-          </h3>
-          
-          <p style={{
-            fontSize: '1.1rem',
-            color: 'var(--text-secondary)',
-            lineHeight: '1.8',
-            marginBottom: '1.5rem'
-          }}>
-            PennyPics leverages Solana blockchain technology to provide a seamless payment experience.
-            Each image generation costs just 0.001 SOL, payable through your Phantom wallet.
-            This integration ensures secure transactions, lower fees, and faster processing compared to
-            traditional payment methods.
-          </p>
-          
           <div style={{ 
             marginTop: '3rem',
             textAlign: 'center'
@@ -224,33 +196,9 @@ export default function About() {
               fontSize: '1rem',
               textDecoration: 'none',
               boxShadow: '0 4px 6px rgba(56, 178, 172, 0.3)',
-              marginRight: '1rem'
             }}>
               Try PennyPics Now
             </Link>
-            
-            {!wallet.publicKey && (
-              <button
-                onClick={() => {
-                  const walletButton = document.querySelector('.wallet-adapter-button');
-                  if (walletButton) walletButton.click();
-                }}
-                style={{
-                  display: 'inline-block',
-                  backgroundColor: '#4A5568',
-                  color: 'white',
-                  border: 'none',
-                  padding: '0.9rem 2rem',
-                  borderRadius: '8px',
-                  cursor: 'pointer',
-                  fontWeight: '600',
-                  fontSize: '1rem',
-                  boxShadow: '0 4px 6px rgba(74, 85, 104, 0.3)',
-                }}
-              >
-                Connect Wallet
-              </button>
-            )}
           </div>
         </div>
       </main>
@@ -262,8 +210,7 @@ export default function About() {
         textAlign: 'center',
         fontSize: '0.9rem'
       }}>
-        <p style={{ margin: '0 0 0.5rem' }}>© {new Date().getFullYear()} PennyPics. All rights reserved.</p>
-        <p style={{ margin: '0', fontSize: '0.8rem' }}>Powered by Solana Blockchain and Stability AI</p>
+        <p style={{ margin: '0' }}>© {new Date().getFullYear()} PennyPics. All rights reserved.</p>
       </footer>
     </div>
   );
